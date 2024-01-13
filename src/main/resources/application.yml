@@ -1,0 +1,15 @@
+sourcemail:
+  store_protocol: imaps
+  imaps:
+    host: "-"
+    port: 993
+    timeout: 10000
+bot:
+  token: "-"
+  chat-id: "-"
+gmail:
+  username: "-"
+  app-password: "-"
+default-zone-id: "-"
+mail:
+  debug: false
