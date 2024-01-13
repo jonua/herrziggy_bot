@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.HashTags;
 import me.jonua.herrziggy_bot.utils.ResourcesUtils;
+import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -72,10 +73,11 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 } else {
                     buildTgSendDocument(bodyPart, attachmentName);
                 }
-            } else {
-                String text = String.format("\n/ attachment (?): [%s] /", contentType);
-                onTextPlain(text);
             }
+
+            String text = buildAttachmentInfo(contentType, bodyPart.getSize());
+            onTextPlain(text);
+
         } catch (MessagingException e) {
             log.error("Unable to process body part: {}", e.getMessage(), e);
         } catch (IOException e) {
@@ -85,8 +87,24 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     @Override
     protected void onMessage(Message message, ContentType contentType) {
-        String text = String.format("\n/ attachment (?): [%s] /", contentType);
+        String text;
+        try {
+            text = buildAttachmentInfo(contentType, message.getSize());
+        } catch (MessagingException e) {
+            log.error("Unable to get attachment size: {}", e.getMessage(), e);
+            text = buildAttachmentInfo(contentType, -1);
+        }
         onTextPlain(text);
+    }
+
+    private static String buildAttachmentInfo(ContentType contentType, int attachmentSizeBytes) {
+        String attachmentFileName = Optional.of(contentType)
+                .map(ContentType::getParameterList).map(params -> params.get("name")).orElse("-unknown name-");
+        String attachmentSize = "-";
+        if (attachmentSizeBytes > 0) {
+            attachmentSize = Utils.humanReadableByteCountBin(attachmentSizeBytes);
+        }
+        return String.format("\t\t%s [%s]", attachmentFileName, attachmentSize);
     }
 
     private SendMessage buildTgSendMessage(String stringMessage, String hashTags) throws IOException {
