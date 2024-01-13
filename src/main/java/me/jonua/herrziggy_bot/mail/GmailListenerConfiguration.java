@@ -1,8 +1,6 @@
-package me.jonua.herrziggy_bot;
+package me.jonua.herrziggy_bot.mail;
 
-import me.jonua.herrziggy_bot.bot.TelegramGroupMessageSender;
-import me.jonua.herrziggy_bot.mail.GmailIncomingMailReader;
-import me.jonua.herrziggy_bot.mail.MessageNotifier;
+import me.jonua.herrziggy_bot.TelegramGroupMessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -13,6 +11,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 public class GmailListenerConfiguration implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired
     private GmailIncomingMailReader gmailIncomingMailReader;
+
     @Autowired
     private TelegramGroupMessageSender sender;
     @Value("${default-zone-id}")
@@ -20,7 +19,7 @@ public class GmailListenerConfiguration implements ApplicationListener<ContextRe
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        gmailIncomingMailReader.setMessageNotifier(new MessageNotifier(sender, defaultZoneId));
+        gmailIncomingMailReader.setMessageNotifier(new TelegramGroupNotifier(sender, defaultZoneId));
         gmailIncomingMailReader.startListening();
     }
 }

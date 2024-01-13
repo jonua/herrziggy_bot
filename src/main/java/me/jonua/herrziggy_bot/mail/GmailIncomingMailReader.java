@@ -5,51 +5,37 @@ import com.sun.mail.imap.IMAPStore;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
+import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GmailIncomingMailReader {
-    @Value("${gmail.username}")
-    private String username;
-    @Value("${gmail.apppassword}")
-    private String password;
-    @Value("${sourcemail.store_protocol}")
-    private String mailStoreProtocol;
-    @Value("${sourcemail.imaps.host}")
-    private String mailImapsHost;
-    @Value("${sourcemail.imaps.port}")
-    private String mailImapsPort;
-    @Value("${sourcemail.imaps.timeout}")
-    private String mailImapsTimeout;
 
     @Setter
-    private MessageNotifier messageNotifier;
-
-    @Value("${mail.debug:false}")
-    private boolean mailDebug;
+    private TelegramGroupNotifier messageNotifier;
+    private final MainConfiguration mailConfiguration;
 
     public void startListening() {
-
         Properties properties = new Properties();
-        properties.put("mail.debug", Boolean.valueOf(mailDebug).toString());
-        properties.put("mail.store.protocol", mailStoreProtocol);
-        properties.put("mail.imaps.host", mailImapsHost);
-        properties.put("mail.imaps.port", mailImapsPort);
-        properties.put("mail.imaps.timeout", mailImapsTimeout);
-        properties.put("mail.imap.partialfetch", "false");
-        properties.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        properties.put("mail.smtp.ssl.protocols", "SSLv3");
-        properties.put("mail.smtp.starttls.required", "true");
-        properties.put("mail.smtp.socketFactory.port", "587");
-
+        properties.putAll(Map.of(
+                "mail.debug", Boolean.valueOf(mailConfiguration.isDebug()).toString(),
+                "mail.store.protocol", mailConfiguration.getStoreProtocol(),
+                "mail.imaps.host", mailConfiguration.getImaps().getHost(),
+                "mail.imaps.port", mailConfiguration.getImaps().getPort(),
+                "mail.imaps.timeout", mailConfiguration.getImaps().getTimeout(),
+                "mail.imap.partialfetch", "false",
+                "mail.smtp.ssl.trust", "smtp.gmail.com",
+                "mail.smtp.ssl.protocols", "SSLv3",
+                "mail.smtp.starttls.required", "true",
+                "mail.smtp.socketFactory.port", "587"
+        ));
 
         Session session = Session.getInstance(properties); // not
         // getDefaultInstance
@@ -58,7 +44,7 @@ public class GmailIncomingMailReader {
 
         try {
             store = (IMAPStore) session.getStore("imaps");
-            store.connect(username, password);
+            store.connect(mailConfiguration.getUsername(), mailConfiguration.getPassword());
 
             if (!store.hasCapability("IDLE")) {
                 throw new RuntimeException("IDLE not supported");
@@ -67,7 +53,7 @@ public class GmailIncomingMailReader {
             inbox = store.getFolder("INBOX");
             inbox.addMessageCountListener(messageCountListener(messageNotifier, session));
 
-            IdleThread idleThread = new IdleThread(inbox, username, password);
+            IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
             idleThread.setDaemon(false);
             idleThread.start();
 
@@ -83,7 +69,7 @@ public class GmailIncomingMailReader {
         }
     }
 
-    private static MessageCountAdapter messageCountListener(MessageNotifier messageNotifier, Session session) {
+    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, Session session) {
         return new MessageCountAdapter() {
             @Override
             public void messagesAdded(MessageCountEvent event) {

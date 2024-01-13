@@ -1,4 +1,4 @@
-package me.jonua.herrziggy_bot.bot;
+package me.jonua.herrziggy_bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.DefaultBotOptions;

@@ -5,7 +5,7 @@ import jakarta.activation.MimeType;
 import jakarta.activation.MimeTypeParseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.bot.TelegramGroupMessageSender;
+import me.jonua.herrziggy_bot.TelegramGroupMessageSender;
 import org.jsoup.Jsoup;
 
 import javax.mail.BodyPart;
@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RequiredArgsConstructor
-public class MessageNotifier {
+public class TelegramGroupNotifier {
     private final TelegramGroupMessageSender notifier;
     private final String zoneId;
 
