@@ -3,7 +3,7 @@ package me.jonua.herrziggy_bot.mail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.HashTags;
-import me.jonua.herrziggy_bot.utils.ResourcesUtils;
+import me.jonua.herrziggy_bot.utils.DateUtils;
 import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
-import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -21,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -107,17 +105,13 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     }
 
     private SendMessage buildTgSendMessage(String stringMessage, String hashTags) throws IOException {
-        String fromAddresses = context.getFrom().stream().map(Address::toString).collect(Collectors.joining(", "));
-        String readyMessage = ResourcesUtils.loadAsString("telegram-message-template.txt")
-                .replace("{from}", fromAddresses)
-                .replace("{subject}", context.getSubject())
-                .replace("{body}", stringMessage)
-                .replace("{hashtags}", hashTags);
+        String info = buildMessageInfo();
+        String text = info + "\n---\n\n" + stringMessage + "\n---\n\n" + hashTags;
 
         return new SendMessage(
                 context.getTelegramChatId(),
                 null,
-                readyMessage,
+                text,
                 null,
                 false,
                 false,
@@ -130,11 +124,14 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     }
 
     private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
+        String info = buildMessageInfo();
+        String caption = info + "\n---\n" + hashTags;
+
         SendPhoto sendPhotoMessage = new SendPhoto(
                 context.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
-                name + " \n\n---\n" + hashTags,
+                caption,
                 false,
                 null,
                 null,
@@ -148,11 +145,14 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     }
 
     private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
+        String info = buildMessageInfo();
+        String caption = info + "\n---\n" + hashTags;
+
         SendDocument sendDocumentMessage = new SendDocument(
                 context.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
-                name + " \n\n---\n" + hashTags,
+                caption,
                 false,
                 null,
                 null,
@@ -164,5 +164,14 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 false
         );
         messages.add(sendDocumentMessage);
+    }
+
+    private String buildMessageInfo() {
+        return String.format("""
+                from: %s
+                date: %s
+                """, context.getFromAsString(),
+                DateUtils.formatDate(context.getSentDate().toInstant(), "MMM d, yyyy")
+        );
     }
 }
