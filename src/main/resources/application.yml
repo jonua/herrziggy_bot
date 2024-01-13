@@ -2,6 +2,7 @@ default-zone-id: "-"
 bot:
   token: "-"
   chat-id: "-"
+  max-allowed-entity-size-bytes: 10_000_000 # 10mb
 mail:
   username: "-"
   password: "-"

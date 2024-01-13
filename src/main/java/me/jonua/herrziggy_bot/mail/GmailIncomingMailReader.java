@@ -17,9 +17,7 @@ import java.util.Properties;
 @Component
 @RequiredArgsConstructor
 public class GmailIncomingMailReader {
-
-    @Setter
-    private TelegramGroupNotifier messageNotifier;
+    private final TelegramGroupNotifier messageNotifier;
     private final MainConfiguration mailConfiguration;
 
     public void startListening() {
@@ -108,7 +106,7 @@ public class GmailIncomingMailReader {
             while (running) {
                 try {
                     ensureOpen(folder, username, password);
-                    System.out.println("enter idle");
+                    log.debug("enter idle");
                     ((IMAPFolder) folder).idle();
                 } catch (Exception e) {
                     log.warn("IdleThread error {}", e.getMessage(), e);
@@ -156,7 +154,7 @@ public class GmailIncomingMailReader {
         }
 
         if (folder.exists() && !folder.isOpen() && (folder.getType() & Folder.HOLDS_MESSAGES) != 0) {
-            System.out.println("open folder " + folder.getFullName());
+            log.debug("open folder " + folder.getFullName());
             folder.open(Folder.READ_ONLY);
             if (!folder.isOpen()) {
                 log.error("Unable to open folder {}", folder.getFullName());

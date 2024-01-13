@@ -1,12 +1,9 @@
 package me.jonua.herrziggy_bot.mail;
 
 import com.sun.mail.util.BASE64DecoderStream;
-import jakarta.activation.MimeType;
 import jakarta.activation.MimeTypeParseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.springframework.stereotype.Service;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -19,66 +16,68 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
-public class MailMessageParser {
-    public String getTextFromMessage(Message message) throws MessagingException, IOException, MimeTypeParseException {
+public abstract class MailMessageParser {
+    protected void onTextPlain(String content) {
+        log.info("onTextPlain");
+    }
+
+    protected void onText(String content, ContentType contentType) {
+        log.info("onText");
+    }
+
+    protected void onBodyPart(BodyPart bodyPart, ContentType contentType) {
+        log.info("onUnknownBodyPart");
+    }
+
+    protected void onMessage(Message message, ContentType contentType) {
+        log.info("onUnknownMessage");
+    }
+
+    public void parse(Message message) throws MessagingException, IOException, MimeTypeParseException {
         ContentType contentType = new ContentType(message.getContentType());
         switch (contentType.getPrimaryType().toLowerCase()) {
             case "text":
                 if (contentType.getSubType().equalsIgnoreCase("plain")) {
-                    return message.getContent().toString();
+                    onTextPlain(message.getContent().toString());
                 }
                 break;
             case "multipart":
                 MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-                return getTextFromMimeMultipart(mimeMultipart);
+                parseMimeMultipart(mimeMultipart);
+                break;
+            default:
+                onMessage(message, contentType);
         }
-        return unknownType(contentType);
     }
 
-    private String getTextFromMimeMultipart(MimeMultipart mimeMultipart) throws MessagingException, IOException, MimeTypeParseException {
-        StringBuilder result = new StringBuilder();
+    private void parseMimeMultipart(MimeMultipart mimeMultipart) throws MessagingException, IOException, MimeTypeParseException {
         for (int i = 0; i < mimeMultipart.getCount(); i++) {
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
             if (bodyPart.isMimeType("text/plain")) {
-                return result + "\n" + bodyPart.getContent(); // without return, same text appears twice in my tests
+                onTextPlain((String) bodyPart.getContent()); // without return, same text appears twice in my tests
             }
             log.debug("BodyPart {} in not a text/plain. Trying to parse...", bodyPart);
-            result.append(parseBodyPart(bodyPart));
+            parseBodyPart(bodyPart);
         }
-        return result.toString();
     }
 
-    private String parseBodyPart(BodyPart bodyPart) throws MessagingException, IOException, MimeTypeParseException {
+    private void parseBodyPart(BodyPart bodyPart) throws MessagingException, IOException, MimeTypeParseException {
         ContentType contentType = new ContentType(bodyPart.getContentType());
         log.info("parsing {} ...", contentType);
 
         switch (contentType.getPrimaryType().toLowerCase()) {
             case "text":
                 if (contentType.getSubType().equalsIgnoreCase("text")) {
-                    return "\n" + Jsoup.parse(bodyPart.getContent().toString()).text();
+                    onText(bodyPart.getContent().toString(), contentType);
                 }
                 break;
             case "multipart":
-                return getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent());
-            case "image":
-            case "audio":
-//                return decodeMessageBase64DecoderStream((BASE64DecoderStream) bodyPart.getContent());
-                return String.format("\n/ attachment (?): [%s] /", contentType);
+                parseMimeMultipart((MimeMultipart) bodyPart.getContent());
+                break;
+            default:
+                onBodyPart(bodyPart, contentType);
         }
-
-        return unknownType(contentType);
-    }
-
-    private String unknownType(ContentType type) {
-        log.warn("Unknown content type: {}", type);
-        return String.format("\n/ attachment (?): [%s] /", type);
-    }
-
-    private String unknownMimeType(MimeType type) {
-        log.warn("Unknown mime type: {}", type);
-        return String.format("\n/ attachment (?): [%s] /", type);
     }
 
     private String decodeMessageBase64DecoderStream(BASE64DecoderStream content) throws IOException {
