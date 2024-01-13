@@ -12,3 +12,25 @@ mail:
     host: "-"
     port: 993
     timeout: 10000
+logging:
+  level:
+    root: warn
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - root-info
+logging:
+  level:
+    root: info
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - app-debug
+logging:
+  level:
+    root: warn
+    me.jonua.herrziggy_bot: debug
