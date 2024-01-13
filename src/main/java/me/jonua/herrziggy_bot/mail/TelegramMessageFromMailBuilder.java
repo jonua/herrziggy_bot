@@ -77,7 +77,6 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
             String text = buildAttachmentInfo(contentType, bodyPart.getSize());
             onTextPlain(text);
-
         } catch (MessagingException e) {
             log.error("Unable to process body part: {}", e.getMessage(), e);
         } catch (IOException e) {
