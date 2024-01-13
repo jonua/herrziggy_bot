@@ -2,6 +2,7 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.HashTags;
 import me.jonua.herrziggy_bot.utils.ResourcesUtils;
 import org.jsoup.Jsoup;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
@@ -30,14 +31,19 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     private final int attachmentSizeThresholdBytes;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
+    private String hashTags;
 
     public List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> buildTelegramMessages(Message message) {
         try {
+            ZonedDateTime zdt = ZonedDateTime.now(zoneId);
+            String currentDateForHashTag = "#date_" + DateTimeFormatter.ofPattern("yyyy_MM_dd").format(zdt);
+            hashTags = String.format("%s %s", HashTags.HASHTASG_MAIL, currentDateForHashTag);
+
             parse(message);
 
             String stringMessage = tgMessageBuilder.toString();
 
-            messages.add(buildTgSendMessage(stringMessage));
+            messages.add(buildTgSendMessage(stringMessage, hashTags));
 
             return messages;
         } catch (Exception e) {
@@ -88,15 +94,12 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         onTextPlain(text);
     }
 
-    private SendMessage buildTgSendMessage(String stringMessage) throws IOException {
-        ZonedDateTime zdt = ZonedDateTime.now(zoneId);
-        String date = DateTimeFormatter.ofPattern("yyyy_MM_dd").format(zdt);
-
+    private SendMessage buildTgSendMessage(String stringMessage, String hashTags) throws IOException {
         String readyMessage = ResourcesUtils.loadAsString("telegram-message-template.txt")
                 .replace("{from}", "-")
                 .replace("{subject}", "-")
                 .replace("{body}", stringMessage)
-                .replace("{hashtags}", "#mail #date_" + date);
+                .replace("{hashtags}", hashTags);
 
         return new SendMessage(
                 chatId,
@@ -118,7 +121,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 chatId,
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
-                name,
+                name + " \n\n---\n" + hashTags,
                 false,
                 null,
                 null,
@@ -136,7 +139,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 chatId,
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
-                name,
+                name + " \n\n---\n" + hashTags,
                 false,
                 null,
                 null,
