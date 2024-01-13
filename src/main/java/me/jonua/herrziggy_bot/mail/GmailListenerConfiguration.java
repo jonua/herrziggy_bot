@@ -17,9 +17,12 @@ public class GmailListenerConfiguration implements ApplicationListener<ContextRe
     @Value("${default-zone-id}")
     private String defaultZoneId;
 
+    @Autowired
+    private MailMessageParser mailMessageParser;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        gmailIncomingMailReader.setMessageNotifier(new TelegramGroupNotifier(sender, defaultZoneId));
+        gmailIncomingMailReader.setMessageNotifier(new TelegramGroupNotifier(sender, defaultZoneId, mailMessageParser));
         gmailIncomingMailReader.startListening();
     }
 }

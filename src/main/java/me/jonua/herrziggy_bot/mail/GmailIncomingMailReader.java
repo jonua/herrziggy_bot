@@ -51,7 +51,7 @@ public class GmailIncomingMailReader {
             }
 
             inbox = store.getFolder("INBOX");
-            inbox.addMessageCountListener(messageCountListener(messageNotifier, session));
+            inbox.addMessageCountListener(messageCountListener(messageNotifier));
 
             IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
             idleThread.setDaemon(false);
@@ -69,13 +69,13 @@ public class GmailIncomingMailReader {
         }
     }
 
-    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, Session session) {
+    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier) {
         return new MessageCountAdapter() {
             @Override
             public void messagesAdded(MessageCountEvent event) {
                 for (Message message : event.getMessages()) {
                     try {
-                        messageNotifier.notifySubscribers(message, session);
+                        messageNotifier.notifySubscribers(message);
                     } catch (Exception e) {
                         log.error("MessageCountAdapter error: {}", e.getMessage(), e);
                     }
