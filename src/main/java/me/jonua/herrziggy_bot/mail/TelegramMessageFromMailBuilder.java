@@ -16,7 +16,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
 import java.io.IOException;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,18 +25,14 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 class TelegramMessageFromMailBuilder extends MailMessageParser {
-    private final String chatId;
-    private final ZoneId zoneId;
-    private final int attachmentSizeThresholdBytes;
+    private final MailNotificationContext context;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
     private String hashTags;
 
     public List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> buildTelegramMessages(Message message) {
         try {
-            ZonedDateTime zdt = ZonedDateTime.now(zoneId);
-            String currentDateForHashTag = "#date_" + DateTimeFormatter.ofPattern("yyyy_MM_dd").format(zdt);
-            hashTags = String.format("%s %s", HashTags.HASHTASG_MAIL, currentDateForHashTag);
+            hashTags = String.format("%s %s", HashTags.HASHTASG_MAIL, context.getHashTagMailSendDate());
 
             parse(message);
 
@@ -68,7 +63,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     @Override
     protected void onBodyPart(BodyPart bodyPart, ContentType contentType) {
         try {
-            if (bodyPart.getSize() < attachmentSizeThresholdBytes) {
+            if (bodyPart.getSize() < context.getAttachmentSizeThresholdBytes()) {
                 String attachmentName = Optional.of(contentType).map(ContentType::getParameterList).map(list -> list.get("name")).orElse("image");
                 log.info("Attachment with name {} discovered", attachmentName);
 
@@ -102,7 +97,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 .replace("{hashtags}", hashTags);
 
         return new SendMessage(
-                chatId,
+                context.getTelegramChatId(),
                 null,
                 readyMessage,
                 null,
@@ -118,7 +113,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
         SendPhoto sendPhotoMessage = new SendPhoto(
-                chatId,
+                context.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
                 name + " \n\n---\n" + hashTags,
@@ -136,7 +131,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
         SendDocument sendDocumentMessage = new SendDocument(
-                chatId,
+                context.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
                 name + " \n\n---\n" + hashTags,

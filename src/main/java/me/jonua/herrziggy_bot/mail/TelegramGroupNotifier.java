@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -19,12 +21,21 @@ import java.util.List;
 public class TelegramGroupNotifier {
     @Value("${bot.chat-id}")
     private String chatId;
+    @Value("${default-zone-id}")
+    private ZoneId zoneId;
+    @Value("${bot.max-allowed-entity-size-bytes}")
+    private Integer attachmentSizeThresholdBytes;
 
     private final HerrZiggyBot bot;
     private final TelegramMessageBuilderService telegramMessageBuilder;
 
-    public void notifySubscribers(Message mailMessage) {
-        List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> tgMessages = telegramMessageBuilder.buildFromMail(mailMessage, chatId);
+    public void notifySubscribers(Message mailMessage) throws MessagingException {
+        MailNotificationContext ctx = MailNotificationContext.fromMessage(mailMessage, zoneId);
+        ctx.setTelegramChatId(chatId);
+        ctx.setZoneId(zoneId);
+        ctx.setAttachmentSizeThresholdBytes(attachmentSizeThresholdBytes);
+
+        List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> tgMessages = telegramMessageBuilder.buildFromMail(mailMessage, ctx);
         for (PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message> tgMessage : tgMessages.reversed()) {
             try {
                 switch (tgMessage) {
