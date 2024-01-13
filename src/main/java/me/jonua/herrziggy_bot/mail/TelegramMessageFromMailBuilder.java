@@ -11,16 +11,16 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -90,9 +90,10 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     }
 
     private SendMessage buildTgSendMessage(String stringMessage, String hashTags) throws IOException {
+        String fromAddresses = context.getFrom().stream().map(Address::toString).collect(Collectors.joining(", "));
         String readyMessage = ResourcesUtils.loadAsString("telegram-message-template.txt")
-                .replace("{from}", "-")
-                .replace("{subject}", "-")
+                .replace("{from}", fromAddresses)
+                .replace("{subject}", context.getSubject())
                 .replace("{body}", stringMessage)
                 .replace("{hashtags}", hashTags);
 
