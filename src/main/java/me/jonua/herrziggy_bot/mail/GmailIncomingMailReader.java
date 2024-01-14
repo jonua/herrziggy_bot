@@ -105,16 +105,16 @@ public class GmailIncomingMailReader {
             while (running) {
                 try {
                     ensureOpen(folder, username, password);
-                    log.debug("enter idle");
+                    log.trace("enter idle");
                     ((IMAPFolder) folder).idle();
                 } catch (Exception e) {
-                    log.warn("IdleThread error {}", e.getMessage(), e);
+                    log.error("IdleThread error {}", e.getMessage(), e);
                     // something went wrong
                     // wait and try again
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e1) {
-                        log.warn("IdleThread sleep interrupted: {}", e1.getMessage(), e1);
+                        log.error("IdleThread sleep interrupted: {}", e1.getMessage(), e1);
                     }
                 }
             }

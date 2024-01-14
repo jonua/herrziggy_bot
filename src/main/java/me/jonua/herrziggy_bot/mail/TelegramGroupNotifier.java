@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -41,14 +42,32 @@ public class TelegramGroupNotifier {
         for (PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message> tgMessage : tgMessages.reversed()) {
             try {
                 switch (tgMessage) {
-                    case SendMessage message -> bot.execute(message);
-                    case SendPhoto message -> bot.execute(message);
-                    case SendDocument message -> bot.execute(message);
+                    case SendMessage message -> send(message);
+                    case SendPhoto message -> send(message);
+                    case SendDocument message -> send(message);
                     default -> log.error("Can't send message: unsupported message type: {}", tgMessage.getClass());
                 }
             } catch (Exception e) {
                 log.error("Unable to send message {}: {}", tgMessage.getClass(), e.getMessage(), e);
             }
         }
+    }
+
+    private void send(SendDocument message) throws TelegramApiException {
+        log.trace("The next message will be sent: document {} ({}) with caption {}",
+                message.getDocument().getAttachName(), message.getDocument().getMediaName(), message.getCaption());
+        bot.execute(message);
+    }
+
+    private void send(SendPhoto message) throws TelegramApiException {
+        log.trace("The next message will be sent: photo {} ({}) with caption {}",
+                message.getPhoto().getAttachName(), message.getPhoto().getMediaName(), message.getCaption());
+        bot.execute(message);
+    }
+
+    private void send(SendMessage message) throws TelegramApiException {
+        log.trace("The next message will be sent: message {}: {}",
+                message.getReplyMarkup(), message.getText());
+        bot.execute(message);
     }
 }

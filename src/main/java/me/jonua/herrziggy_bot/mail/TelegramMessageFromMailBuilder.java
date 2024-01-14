@@ -2,7 +2,6 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.HashTags;
 import me.jonua.herrziggy_bot.utils.DateUtils;
 import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
@@ -26,14 +25,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class TelegramMessageFromMailBuilder extends MailMessageParser {
     public static final int MAX_MESSAGE_LENGTH = 4096;
-    private final MailNotificationContext context;
+    private final MailNotificationContext ctx;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
     private String hashTags;
 
     public List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> buildTelegramMessages(Message message) {
         try {
-            hashTags = String.format("%s %s", HashTags.HASHTASG_MAIL, context.getHashTagMailSendDate());
+            hashTags = String.format("#mail %s", ctx.getHashTagMailSendDate());
 
             parse(message);
 
@@ -64,7 +63,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     @Override
     protected void onBodyPart(BodyPart bodyPart, ContentType contentType) {
         try {
-            if (bodyPart.getSize() < context.getAttachmentSizeThresholdBytes()) {
+            if (bodyPart.getSize() < ctx.getAttachmentSizeThresholdBytes()) {
                 String attachmentName = Optional.of(contentType).map(ContentType::getParameterList).map(list -> list.get("name")).orElse("image");
                 log.info("Attachment with name {} discovered", attachmentName);
 
@@ -106,14 +105,19 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         return String.format("\t\t%s [%s]", attachmentFileName, attachmentSize);
     }
 
-    private SendMessage buildTgSendMessage(String stringMessage) throws IOException {
+    private SendMessage buildTgSendMessage(String stringMessage) {
+        String tags = hashTags + " #message";
         String info = buildMessageInfo();
-        String text = info + "\n" + divider(context) + "\n\n" + escapeForMarkdownV2IfEnabled(context, stringMessage) + "\n" + divider(context) + "\n\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
+        String text = info + "\n" +
+                divider(ctx) +
+                "\n" + tgEscape(ctx, stringMessage) +
+                "\n\n" + tgEscape(ctx, tags);
 
+        text = "*New mail" + tgEscape(ctx, "!") + "*\n" + tgEscape(ctx,"\n") + text;
         text = reduceMessageIfNeeds(text);
 
         return new SendMessage(
-                context.getTelegramChatId(),
+                ctx.getTelegramChatId(),
                 null,
                 text,
                 ParseMode.MARKDOWNV2,
@@ -129,17 +133,18 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
         String info = buildMessageInfo();
-        String caption = info + "\n" + divider(context) + "\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
+        String tags = hashTags + " " + "#attachment #photo";
+        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx, tags);
 
         SendPhoto sendPhotoMessage = new SendPhoto(
-                context.getTelegramChatId(),
+                ctx.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
                 caption,
                 false,
                 null,
                 null,
-                null,
+                ctx.getTelegramMessageParseMode(),
                 null,
                 true,
                 false,
@@ -150,17 +155,18 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
         String info = buildMessageInfo();
-        String caption = info + "\n" + divider(context) + "\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
+        String tags = hashTags + " " + "#attachment #document";
+        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx, tags);
 
         SendDocument sendDocumentMessage = new SendDocument(
-                context.getTelegramChatId(),
+                ctx.getTelegramChatId(),
                 null,
                 new InputFile(bodyPart.getInputStream(), name),
                 caption,
                 false,
                 null,
                 null,
-                null,
+                ctx.getTelegramMessageParseMode(),
                 null,
                 null,
                 true,
@@ -172,18 +178,18 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private String buildMessageInfo() {
         return String.format("""
-                        _from_: *%s*
-                        _date_: *%s*
-                        """, escapeForMarkdownV2IfEnabled(context, context.getFromAsString()),
-                DateUtils.formatDate(context.getSentDate(), "MMM d, yyyy")
+                        *from*: _%s_
+                        *date*: _%s_
+                        """, tgEscape(ctx, ctx.getFromAsString()),
+                DateUtils.formatDate(ctx.getSentDate(), "MMM d, yyyy HH:mm")
         );
     }
 
     private static String divider(MailNotificationContext context) {
-        return escapeForMarkdownV2IfEnabled(context, "---");
+        return tgEscape(context, "---");
     }
 
-    public static String escapeForMarkdownV2IfEnabled(MailNotificationContext context, String text) {
+    public static String tgEscape(MailNotificationContext context, String text) {
         if (!ParseMode.MARKDOWNV2.equalsIgnoreCase(context.getTelegramMessageParseMode()) &&
                 !ParseMode.MARKDOWN.equalsIgnoreCase(context.getTelegramMessageParseMode())) {
             return text;
@@ -198,7 +204,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private String reduceMessageIfNeeds(String text) {
         if (text.length() > MAX_MESSAGE_LENGTH) {
-            return text.substring(0, MAX_MESSAGE_LENGTH - 10) + escapeForMarkdownV2IfEnabled(context, " ...");
+            return text.substring(0, MAX_MESSAGE_LENGTH - 10) + tgEscape(ctx, " ...");
         }
         return text;
     }
