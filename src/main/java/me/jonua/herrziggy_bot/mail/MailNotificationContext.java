@@ -2,6 +2,7 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -32,7 +33,8 @@ public class MailNotificationContext {
 
     @Setter
     private Integer attachmentSizeThresholdBytes;
-
+    @Setter
+    private String telegramMessageParseMode = null;
 
     public static MailNotificationContext fromMessage(Message mailMessage, ZoneId zoneId) throws MessagingException {
         MailNotificationContext meta = new MailNotificationContext();
@@ -42,7 +44,7 @@ public class MailNotificationContext {
         meta.subject = mailMessage.getSubject();
 
         meta.sentDate = ZonedDateTime.ofInstant(mailMessage.getSentDate().toInstant(), zoneId);
-        meta.hashTagMailSendDate = "#" + DateTimeFormatter.ofPattern("yyyy_MM_dd").format(meta.sentDate);
+        meta.hashTagMailSendDate = "#date" + DateTimeFormatter.ofPattern("yyyy_MM_dd").format(meta.sentDate);
 
         return meta;
     }

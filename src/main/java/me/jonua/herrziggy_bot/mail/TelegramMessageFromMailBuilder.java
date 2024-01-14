@@ -6,6 +6,7 @@ import me.jonua.herrziggy_bot.HashTags;
 import me.jonua.herrziggy_bot.utils.DateUtils;
 import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 class TelegramMessageFromMailBuilder extends MailMessageParser {
+    public static final int MAX_MESSAGE_LENGTH = 4096;
     private final MailNotificationContext context;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
@@ -37,7 +39,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
             String stringMessage = tgMessageBuilder.toString();
 
-            messages.add(buildTgSendMessage(stringMessage, hashTags));
+            messages.add(buildTgSendMessage(stringMessage));
 
             return messages;
         } catch (Exception e) {
@@ -104,15 +106,17 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         return String.format("\t\t%s [%s]", attachmentFileName, attachmentSize);
     }
 
-    private SendMessage buildTgSendMessage(String stringMessage, String hashTags) throws IOException {
+    private SendMessage buildTgSendMessage(String stringMessage) throws IOException {
         String info = buildMessageInfo();
-        String text = info + "\n---\n\n" + stringMessage + "\n---\n\n" + hashTags;
+        String text = info + "\n" + divider(context) + "\n\n" + escapeForMarkdownV2IfEnabled(context, stringMessage) + "\n" + divider(context) + "\n\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
+
+        text = reduceMessageIfNeeds(text);
 
         return new SendMessage(
                 context.getTelegramChatId(),
                 null,
                 text,
-                null,
+                ParseMode.MARKDOWNV2,
                 false,
                 false,
                 null,
@@ -125,7 +129,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
         String info = buildMessageInfo();
-        String caption = info + "\n---\n" + hashTags;
+        String caption = info + "\n" + divider(context) + "\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
 
         SendPhoto sendPhotoMessage = new SendPhoto(
                 context.getTelegramChatId(),
@@ -146,7 +150,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
         String info = buildMessageInfo();
-        String caption = info + "\n---\n" + hashTags;
+        String caption = info + "\n" + divider(context) + "\n" + escapeForMarkdownV2IfEnabled(context, hashTags);
 
         SendDocument sendDocumentMessage = new SendDocument(
                 context.getTelegramChatId(),
@@ -168,10 +172,34 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
     private String buildMessageInfo() {
         return String.format("""
-                from: %s
-                date: %s
-                """, context.getFromAsString(),
-                DateUtils.formatDate(context.getSentDate().toInstant(), "MMM d, yyyy")
+                        _from_: *%s*
+                        _date_: *%s*
+                        """, escapeForMarkdownV2IfEnabled(context, context.getFromAsString()),
+                DateUtils.formatDate(context.getSentDate(), "MMM d, yyyy")
         );
+    }
+
+    private static String divider(MailNotificationContext context) {
+        return escapeForMarkdownV2IfEnabled(context, "---");
+    }
+
+    public static String escapeForMarkdownV2IfEnabled(MailNotificationContext context, String text) {
+        if (!ParseMode.MARKDOWNV2.equalsIgnoreCase(context.getTelegramMessageParseMode()) &&
+                !ParseMode.MARKDOWN.equalsIgnoreCase(context.getTelegramMessageParseMode())) {
+            return text;
+        }
+
+        List<Character> charsToBeEscaped = List.of('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
+        for (Character ch : charsToBeEscaped) {
+            text = text.replace(ch.toString(), "\\" + ch);
+        }
+        return text;
+    }
+
+    private String reduceMessageIfNeeds(String text) {
+        if (text.length() > MAX_MESSAGE_LENGTH) {
+            return text.substring(0, MAX_MESSAGE_LENGTH - 10) + escapeForMarkdownV2IfEnabled(context, " ...");
+        }
+        return text;
     }
 }

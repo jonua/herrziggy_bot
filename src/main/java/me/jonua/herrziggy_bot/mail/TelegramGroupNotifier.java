@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.HerrZiggyBot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -34,6 +35,7 @@ public class TelegramGroupNotifier {
         ctx.setTelegramChatId(chatId);
         ctx.setZoneId(zoneId);
         ctx.setAttachmentSizeThresholdBytes(attachmentSizeThresholdBytes);
+        ctx.setTelegramMessageParseMode(ParseMode.MARKDOWNV2);
 
         List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> tgMessages = telegramMessageBuilder.buildFromMail(mailMessage, ctx);
         for (PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message> tgMessage : tgMessages.reversed()) {
