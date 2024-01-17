@@ -10,7 +10,7 @@ google-cloud:
     api:
       key: "-"
 calendar:
-  calendarId: "-"
+  calendar-id: "-"
 mail:
   username: "-"
   password: "-"
