@@ -2,7 +2,7 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.utils.DateUtils;
+import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.reduceMessageIfNeeds;
+import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.tgEscape;
+
 @Slf4j
 @RequiredArgsConstructor
 class TelegramMessageFromMailBuilder extends MailMessageParser {
-    public static final int MAX_MESSAGE_LENGTH = 4096;
     private final MailNotificationContext ctx;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
@@ -110,11 +112,11 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         String info = buildMessageInfo();
         String text = info + "\n" +
                 divider(ctx) +
-                "\n" + tgEscape(ctx, stringMessage) +
-                "\n\n" + tgEscape(ctx, tags);
+                "\n" + tgEscape(ctx.getTelegramMessageParseMode(), stringMessage) +
+                "\n\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
-        text = "*New mail" + tgEscape(ctx, "!") + "*\n" + tgEscape(ctx,"\n") + text;
-        text = reduceMessageIfNeeds(text);
+        text = "*New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(),"\n") + text;
+        text = reduceMessageIfNeeds(ctx.getTelegramMessageParseMode(), text);
 
         return new SendMessage(
                 ctx.getTelegramChatId(),
@@ -134,7 +136,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
         String info = buildMessageInfo();
         String tags = hashTags + " " + "#attachment #photo";
-        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx, tags);
+        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
         SendPhoto sendPhotoMessage = new SendPhoto(
                 ctx.getTelegramChatId(),
@@ -156,7 +158,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
         String info = buildMessageInfo();
         String tags = hashTags + " " + "#attachment #document";
-        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx, tags);
+        String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
         SendDocument sendDocumentMessage = new SendDocument(
                 ctx.getTelegramChatId(),
@@ -180,32 +182,12 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         return String.format("""
                         *from*: _%s_
                         *date*: _%s_
-                        """, tgEscape(ctx, ctx.getFromAsString()),
-                DateUtils.formatDate(ctx.getSentDate(), "MMM d, yyyy HH:mm")
+                        """, tgEscape(ctx.getTelegramMessageParseMode(), ctx.getFromAsString()),
+                DateTimeUtils.formatDate(ctx.getSentDate(), DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME)
         );
     }
 
     private static String divider(MailNotificationContext context) {
-        return tgEscape(context, "---");
-    }
-
-    public static String tgEscape(MailNotificationContext context, String text) {
-        if (!ParseMode.MARKDOWNV2.equalsIgnoreCase(context.getTelegramMessageParseMode()) &&
-                !ParseMode.MARKDOWN.equalsIgnoreCase(context.getTelegramMessageParseMode())) {
-            return text;
-        }
-
-        List<Character> charsToBeEscaped = List.of('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
-        for (Character ch : charsToBeEscaped) {
-            text = text.replace(ch.toString(), "\\" + ch);
-        }
-        return text;
-    }
-
-    private String reduceMessageIfNeeds(String text) {
-        if (text.length() > MAX_MESSAGE_LENGTH) {
-            return text.substring(0, MAX_MESSAGE_LENGTH - 10) + tgEscape(ctx, " ...");
-        }
-        return text;
+        return tgEscape(context.getTelegramMessageParseMode(), "---");
     }
 }
