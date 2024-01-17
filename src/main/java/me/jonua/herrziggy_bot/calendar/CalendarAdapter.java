@@ -5,10 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.utils.DateTimeUtils;
-import me.jonua.herrziggy_bot.utils.RetrofitUtils;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -76,10 +77,13 @@ public class CalendarAdapter {
         }
     }
 
+    @Autowired
+    CacheManager manager;
+
     private void respondWithCalendarData(AbsSender sender, BotCommandsCalendar command, String timeMin, String timeMax, String q) {
         log.trace("Command will be executed on a calendar: {} with start date:{}, end date:{} and query:{}",
                 command.getCommand(), timeMin, timeMax, q);
-        CalendarEventsDto events = RetrofitUtils.executeWithResult(googleCalendarApi.searchEvents(timeMin, timeMax, q));
+        CalendarEventsDto events = googleCalendarApi.searchEvents(timeMin, timeMax, q);
         List<String> eventList = new ArrayList<>();
 
         for (CalendarEventItemDto item : events.getItems()) {

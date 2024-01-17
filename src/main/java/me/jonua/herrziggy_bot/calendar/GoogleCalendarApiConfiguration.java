@@ -35,14 +35,14 @@ public class GoogleCalendarApiConfiguration {
     private ObjectMapper jackson;
 
     @Bean
-    public GoogleCalendarApi googleCalendarApi() {
+    public RetrofitGoogleCalendarApi googleCalendarApi() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://www.googleapis.com/calendar/v3/calendars/" + calendarId + "/")
                 .client(buildOkHttpClient())
                 .addConverterFactory(buildConverterFactory())
                 .build();
 
-        return retrofit.create(GoogleCalendarApi.class);
+        return retrofit.create(RetrofitGoogleCalendarApi.class);
     }
 
     private Converter.Factory buildConverterFactory() {
