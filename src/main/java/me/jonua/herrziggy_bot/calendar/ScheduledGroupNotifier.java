@@ -20,7 +20,7 @@ public class ScheduledGroupNotifier {
     private final AbsSender absSender;
 
     @Scheduled(cron = "0 0 7 * * 1") // every monday at 7 o'clock by UTC
-    private void notifyAlAbotCalendarEvents() {
+    private void notifyAlAboutCalendarEvents() {
         log.info("Notifying group {} about next week events...", groupId);
         calendarAdapter.handleCommand(absSender, groupId, BotCommandsCalendar.THIS_WEEK, ZonedDateTime.now());
     }
