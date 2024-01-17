@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.time.ZonedDateTime;
@@ -21,7 +20,7 @@ public class ScheduledGroupNotifier {
     private final AbsSender absSender;
 
     @Scheduled(cron = "0 0 7 * * 1") // every monday at 7 o'clock by UTC
-    private void notifyNext30DaysEvents() {
+    private void notifyAlAbotCalendarEvents() {
         log.info("Notifying group {} about next week events...", groupId);
         calendarAdapter.handleCommand(absSender, groupId, BotCommandsCalendar.THIS_WEEK, ZonedDateTime.now());
     }
