@@ -25,55 +25,15 @@
     </appender>
 
     <appender name="file" class="ch.qos.logback.core.FileAppender">
-        <file>logs.log</file>
+        <file>${LOG_FOLDER}/logs.log</file>
         <append>true</append>
         <encoder>
             <pattern>%-4relative [%thread] %-5level %logger{35}:%line - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <springProfile name="cloud">
-        <!-- Use shutdownHook so that we can close gracefully and finish the log drain -->
-        <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
-        <appender name="LogzioLogbackAppender" class="io.logz.logback.LogzioLogbackAppender">
-            <token>${logzioToken}</token>
-            <logzioUrl>https://listener.logz.io:8071</logzioUrl>
-            <debug>false</debug>
-            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                <providers>
-                    <timestamp>
-                        <timeZone>UTC</timeZone>
-                    </timestamp>
-                    <pattern>
-                        <pattern>
-                            {
-                            "severity": "%level",
-                            "service": "${springAppName:-}",
-                            "env" : "${envName:-}",
-                            "trace": "%X{traceId:-}",
-                            "span": "%X{spanId:-}",
-                            "baggage": "%X{key:-}",
-                            "pid": "${PID:-}",
-                            "thread": "%thread",
-                            "class": "%logger{60}:%M:%L",
-                            "message": "%message",
-                            "stack-trace": "%ex{full}"
-                            }
-                        </pattern>
-                    </pattern>
-                </providers>
-            </encoder>
-            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>WARN</level>
-            </filter>
-        </appender>
-
-        <root additivity="false">
-            <appender-ref ref="LogzioLogbackAppender"/>
-        </root>
-    </springProfile>
-
     <logger name="root" additivity="false">
         <appender-ref ref="console" />
+        <appender-ref ref="file" />
     </logger>
 </configuration>
