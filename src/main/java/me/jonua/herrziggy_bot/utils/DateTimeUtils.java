@@ -11,8 +11,12 @@ public final class DateTimeUtils {
     public static final String FORMAT_SHORT_DATE_WITH_DAY_NAME = "EEE, MMM d";
     public static final String FORMAT_SHORT_TIME = "HH:mm";
 
-    public static String formatDate(ZonedDateTime instant, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(instant);
+    public static String formatDate(ZonedDateTime zdt, String pattern) {
+        return formatDate(zdt, ZoneId.systemDefault(), pattern);
+    }
+
+    public static String formatDate(ZonedDateTime zdt, ZoneId zoneId, String pattern) {
+        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.ofInstant(zdt.toInstant(), zoneId));
     }
 
     public static ZonedDateTime getLastDateTimeOfWeek(ZonedDateTime zdt) {
@@ -32,6 +36,6 @@ public final class DateTimeUtils {
     public static ZonedDateTime getEndOfDay(ZonedDateTime zdt) {
         Calendar instance = Calendar.getInstance();
         instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 23, 59, 59);
-        return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("Europe/Moscow"));
+        return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("UTC"));
     }
 }

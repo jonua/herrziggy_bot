@@ -13,11 +13,11 @@ public enum BotCommandsCalendar {
 
     private final String command;
 
-    private final String commandDescription;
+    private final String description;
 
     BotCommandsCalendar(String command, String description) {
         this.command = command;
-        this.commandDescription = description;
+        this.description = description;
     }
 
     public static BotCommandsCalendar fromString(String text) {

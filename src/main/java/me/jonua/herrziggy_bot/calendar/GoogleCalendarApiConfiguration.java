@@ -16,7 +16,6 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 import static okhttp3.logging.HttpLoggingInterceptor.Level.*;
@@ -28,8 +27,6 @@ public class GoogleCalendarApiConfiguration {
     private String calendarId;
     @Value("${google-cloud.calendar.api.key}")
     private String googleCloudCalendarApiKey;
-    @Value("${default-zone-id}")
-    private ZoneId zoneId;
 
     @Autowired
     private ObjectMapper jackson;
@@ -59,7 +56,7 @@ public class GoogleCalendarApiConfiguration {
                 .connectTimeout(timeoutDuration)
                 .readTimeout(timeoutDuration)
                 .writeTimeout(timeoutDuration)
-                .addInterceptor(new GoogleAouKeyProvider(googleCloudCalendarApiKey, zoneId))
+                .addInterceptor(new GoogleAouKeyProvider(googleCloudCalendarApiKey))
                 .addInterceptor(chain -> {
                     boolean hasMultipart = isMultipartRequest(chain);
                     setupOkHttpLogLevel(loggingInterceptor, hasMultipart);
@@ -92,14 +89,13 @@ public class GoogleCalendarApiConfiguration {
     @RequiredArgsConstructor
     public static class GoogleAouKeyProvider implements Interceptor {
         private final String googleApiKey;
-        private final ZoneId timeZone;
 
         @NotNull
         @Override
         public Response intercept(@NotNull Chain chain) throws IOException {
             HttpUrl url = chain.request().url().newBuilder()
                     .addQueryParameter("key", googleApiKey)
-                    .addQueryParameter("timeZone", timeZone.toString())
+//                    .addQueryParameter("timeZone", "Europe/Moscow")
                     .addQueryParameter("orderBy", "startTime")
                     .addQueryParameter("singleEvents", "true")
                     .build();
