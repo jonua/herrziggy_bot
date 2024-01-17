@@ -4,6 +4,7 @@ import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
@@ -15,6 +16,7 @@ import java.util.Properties;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "bot.poll_new_mails", havingValue = "true")
 public class GmailIncomingMailReader {
     private final TelegramGroupNotifier messageNotifier;
     private final MainConfiguration mailConfiguration;

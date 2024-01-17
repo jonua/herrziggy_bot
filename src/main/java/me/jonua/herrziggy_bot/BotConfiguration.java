@@ -1,6 +1,8 @@
 package me.jonua.herrziggy_bot;
 
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.calendar.CalendarAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,12 +17,13 @@ public class BotConfiguration {
     @Value("${bot.token}")
     private String botToken;
 
-
+    @Autowired
+    private CalendarAdapter calendarAdapter;
 
     @Bean
     public HerrZiggyBot herrZiggyBot() {
         try {
-            HerrZiggyBot bot = new HerrZiggyBot(new DefaultBotOptions(), botToken);
+            HerrZiggyBot bot = new HerrZiggyBot(new DefaultBotOptions(), botToken, calendarAdapter);
 
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(bot);

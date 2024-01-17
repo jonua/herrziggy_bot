@@ -1,8 +1,16 @@
 default-zone-id: "-"
 bot:
   token: "-"
+  name: "-"
   chat-id: "-"
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
+  poll_new_mails: false
+google-cloud:
+  calendar:
+    api:
+      key: "-"
+calendar:
+  calendarId: "-"
 mail:
   username: "-"
   password: "-"
