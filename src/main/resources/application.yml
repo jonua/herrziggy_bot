@@ -7,7 +7,7 @@ bot:
   poll_new_mails: false
   feedback:
     enabled: true
-    sent-to-user-id: 154033750
+    sent-to-user-id: "-"
     thanks-for-feedback-message: Thanks for you feedback!
     give-feedback-message: Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены
 google-cloud:
