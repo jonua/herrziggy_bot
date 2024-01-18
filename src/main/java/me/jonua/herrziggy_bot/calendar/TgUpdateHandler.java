@@ -6,6 +6,7 @@ import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.ServiceCommandHandler;
 import me.jonua.herrziggy_bot.feedback.FeedbackCommandHandler;
 import me.jonua.herrziggy_bot.feedback.FeedbackHandler;
+import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
@@ -20,11 +21,14 @@ public class TgUpdateHandler {
     private final FeedbackCommandHandler feedbackCommandHandler;
     private final FeedbackHandler messageHandler;
     private final ServiceCommandHandler serviceCommandHandler;
+    private final StorageService storage;
 
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
         User fromUser = message.getFrom();
         log.trace("Message from user {}: {}", fromUser, message.getText());
+
+        storage.saveData(update);
 
         if (message.isCommand()) {
             for (MessageEntity entity : message.getEntities()) {

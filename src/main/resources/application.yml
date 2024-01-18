@@ -25,6 +25,14 @@ mail:
     host: "-"
     port: 993
     timeout: 10000
+spring:
+  datasource:
+    url: jdbc:h2:file:${H2_DATA_LOCATION_FOLDER};DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
+    driverClassName: org.h2.Driver
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: false
 logging:
   level:
     root: warn
