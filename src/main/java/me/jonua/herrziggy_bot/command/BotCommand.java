@@ -10,7 +10,7 @@ public enum BotCommand {
     NEXT_WEEK(CommandType.CALENDAR, "next_week", "Календарь на следующую неделю"), // - Календарь на следующую неделею
     CURRENT_30_DAYS_SEMINARS(CommandType.CALENDAR, "30days_seminars", "Семинары на ближайшие 30 дней"), // - Только семинары в ближайшие 30 дней
     CURRENT_30_DAYS_TESTS(CommandType.CALENDAR, "30days_tests", "Зачеты на ближайшие 30 дней"), // - Только семинары в ближайшие 30 дней
-    FEEDBACK(CommandType.FEEDBACK, "feedback", "Обратая связзь"), // - Только семинары в ближайшие 30 дней
+    FEEDBACK(CommandType.FEEDBACK, "feedback", "Обратная связь"), // - Только семинары в ближайшие 30 дней
     CANCEL_FEEDBACK(CommandType.SERVICE, "cancel_feedback", "Отменить фидбек"); // - Только семинары в ближайшие 30 дней
 
     private final CommandType commandType;
