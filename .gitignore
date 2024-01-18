@@ -34,3 +34,4 @@ build/
 
 ### custom
 .localconfigs/
+LOG_FOLDER_IS_UNDEFINED/
