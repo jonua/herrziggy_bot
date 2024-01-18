@@ -5,6 +5,11 @@ bot:
   chat-id: "-"
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
   poll_new_mails: false
+  feedback:
+    enabled: true
+    sent-to-user-id: 154033750
+    thanks-for-feedback-message: Thanks for you feedback!
+    give-feedback-message: Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены
 google-cloud:
   calendar:
     api:
@@ -42,3 +47,13 @@ logging:
   level:
     root: warn
     me.jonua.herrziggy_bot: debug
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - app-trace
+logging:
+  level:
+    root: warn
+    me.jonua.herrziggy_bot: trace

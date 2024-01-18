@@ -32,8 +32,21 @@
         </encoder>
     </appender>
 
+    <appender name="feedback" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_FOLDER}/feedbacks.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35}:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="root" additivity="false">
         <appender-ref ref="console" />
         <appender-ref ref="file" />
+    </logger>
+
+    <logger name="me.jonua.herrziggy_bot.feedback.FeedbackHandler" additivity="false">
+        <appender-ref ref="console" />
+        <appender-ref ref="feedback" />
     </logger>
 </configuration>
