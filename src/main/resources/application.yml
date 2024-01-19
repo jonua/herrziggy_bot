@@ -27,12 +27,13 @@ mail:
     timeout: 10000
 spring:
   datasource:
-    url: jdbc:h2:file:${H2_DATA_LOCATION_FOLDER};DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
-    driverClassName: org.h2.Driver
+    url: ${DB_URL:jdbc:h2:mem:herrziggy;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+    driverClassName: ${DB_DRIVER_CLASS_NAME:org.h2.Driver}
   jpa:
     open-in-view: false
-    database-platform: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: false
+    database-platform: ${DB_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
 logging:
   level:
     root: warn
