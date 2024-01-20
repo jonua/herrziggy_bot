@@ -29,9 +29,10 @@ public class DefaultUserFlow implements UserFlow {
     }
 
     private String buildUserInfo(Update update) {
+        String unknownUser = "-unknown user-";
         Message message = update.getMessage();
         if (message == null) {
-            return "-unknown user-";
+            return unknownUser;
         }
 
         String result = "";
@@ -52,7 +53,7 @@ public class DefaultUserFlow implements UserFlow {
             }
         }
 
-        return result;
+        return StringUtils.isNotEmpty(result) ? result : unknownUser;
     }
 
     @Override
