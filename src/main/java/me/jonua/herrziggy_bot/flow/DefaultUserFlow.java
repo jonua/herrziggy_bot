@@ -53,7 +53,9 @@ public class DefaultUserFlow implements UserFlow {
             }
         }
 
-        return StringUtils.isNotEmpty(result) ? result : unknownUser;
+        result += " [" + from.getId() + "]";
+
+        return result;
     }
 
     @Override
