@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.ServiceCommandHandler;
-import me.jonua.herrziggy_bot.feedback.FeedbackCommandHandler;
-import me.jonua.herrziggy_bot.feedback.FeedbackHandler;
+import me.jonua.herrziggy_bot.command.handlers.FeedbackCommandHandler;
+import me.jonua.herrziggy_bot.flow.MessageHandler;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -18,7 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class TgUpdateHandler {
     private final CalendarCommandHandler calendarCommandHandler;
     private final FeedbackCommandHandler feedbackCommandHandler;
-    private final FeedbackHandler messageHandler;
+    private final MessageHandler messageHandler;
     private final ServiceCommandHandler serviceCommandHandler;
     private final StorageService storage;
 
@@ -40,7 +40,7 @@ public class TgUpdateHandler {
                 }
             }
         } else if (message.isUserMessage()) {
-            messageHandler.handleFeedback(message);
+            messageHandler.handleMessage(message);
         }
     }
 }

@@ -1,26 +1,28 @@
-package me.jonua.herrziggy_bot.feedback;
+package me.jonua.herrziggy_bot.flow;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
-import me.jonua.herrziggy_bot.command.BotCommand;
-import me.jonua.herrziggy_bot.command.CommandHandler;
+import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
-public class FeedbackCommandHandler implements CommandHandler {
+public class SendFeedbackPromptMessageUserFlow implements UserFlow {
     @Value("${bot.feedback.give-feedback-message}")
     private String giveFeedbackMessage;
-    private final FeedbackHandler feedbackHandler;
+    private final MessageHandler feedbackHandler;
     private final MessageSender messageSender;
 
     @Override
-    public void handleCommand(Message message, BotCommand command) {
-        feedbackHandler.waitForFeedbackFrom(message.getFrom());
+    public void perform(Message message) {
+        feedbackHandler.waitUserFlow(message.getFrom(), UserFlowType.RECEIVE_FEEDBACK);
         messageSender.send(giveFeedbackMessage, String.valueOf(message.getFrom().getId()), null);
+    }
+
+    @Override
+    public boolean isSupport(UserFlowType userFlowType) {
+        return UserFlowType.SEND_FEEDBACK_PROMPT_MESSAGE.equals(userFlowType);
     }
 }
