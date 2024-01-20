@@ -6,7 +6,6 @@ bot:
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
   poll_new_mails: false
   feedback:
-    enabled: true
     sent-to-user-id: "-"
     thanks-for-feedback-message: Thanks for you feedback!
     give-feedback-message: Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены

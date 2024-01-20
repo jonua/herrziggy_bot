@@ -39,16 +39,14 @@ public class BotConfiguration {
             HerrZiggyBot bot = new HerrZiggyBot(new DefaultBotOptions(), botToken, calendarAdapter);
 
             List<BotCommandType> commandTypes = new ArrayList<>();
-            commandTypes.add(BotCommandType.CALENDAR);
 
-            log.info("feedback feature enabled: " + feedbackEnabled);
+            Arrays.stream(BotCommand.values())
+                    .filter(BotCommand::isIncludeInBotMenu)
+                    .map(BotCommand::getCommandType)
+                    .forEach(commandTypes::add);
 
-            if (feedbackEnabled) {
-                commandTypes.add(BotCommandType.FEEDBACK);
-
-                WebhookInfo webhookInfo = bot.getWebhookInfo();
-                webhookInfo.setAllowedUpdates(List.of(AllowedUpdates.MESSAGE));
-            }
+            WebhookInfo webhookInfo = bot.getWebhookInfo();
+            webhookInfo.setAllowedUpdates(List.of(AllowedUpdates.MESSAGE));
 
             initializeCommands(bot, commandTypes);
 
