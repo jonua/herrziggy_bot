@@ -23,7 +23,7 @@ public class DefaultUserFlow implements UserFlow {
     public void perform(Update update) {
         SendMessage message = new SendMessage(
                 botAdminUserId,
-                "New message from " + buildUserInfo(update) + ": " + update.getMessage().getText()
+                "#user_direct_message\nNew message from " + buildUserInfo(update) + ": " + update.getMessage().getText()
         );
         messageSender.sendSilently(message);
     }
