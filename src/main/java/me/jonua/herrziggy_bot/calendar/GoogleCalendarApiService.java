@@ -12,14 +12,14 @@ public class GoogleCalendarApiService implements GoogleCalendarApi {
     private final RetrofitGoogleCalendarApi calendarApi;
 
     @Override
-    @Cacheable(cacheNames = "calendar-events", key = "{#timeMax}")
-    public CalendarEventsDto getEvents(String timeMin, String timeMax) {
-        return RetrofitUtils.executeWithResult(calendarApi.getEvents(timeMin, timeMax));
+    @Cacheable(cacheNames = "calendar-events", key = "{#calendarId,#timeMax}")
+    public CalendarEventsDto getEvents(String calendarId, String timeMin, String timeMax) {
+        return RetrofitUtils.executeWithResult(calendarApi.getEvents(calendarId, timeMin, timeMax));
     }
 
     @Override
-    @Cacheable(cacheNames = "calendar-events", key = "{#timeMax,#q}")
-    public CalendarEventsDto searchEvents(String timeMin, String timeMax, String q) {
-        return RetrofitUtils.executeWithResult(calendarApi.searchEvents(timeMin, timeMax, q));
+    @Cacheable(cacheNames = "calendar-events", key = "{#calendarId,#timeMax,#q}")
+    public CalendarEventsDto searchEvents(String calendarId, String timeMin, String timeMax, String q) {
+        return RetrofitUtils.executeWithResult(calendarApi.searchEvents(calendarId, timeMin, timeMax, q));
     }
 }

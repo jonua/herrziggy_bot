@@ -7,6 +7,8 @@ import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.CommandHandler;
+import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +24,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,40 +35,42 @@ public class CalendarCommandHandler implements CommandHandler {
 
     private final GoogleCalendarApi googleCalendarApi;
     private final MessageSender messageSender;
+    private final StorageService storageService;
 
     @Override
     public void handleCommand(Message message, BotCommand command) {
-        User fromUser = message.getFrom();
-        sendCalendarTo(fromUser, command);
+        String tgUserId = String.valueOf(message.getFrom().getId());
+        Optional<Calendar> calendar = storageService.findCalendar(tgUserId);
+        sendCalendarTo(calendar.get().getGoogleCalendarId(), tgUserId, command);
     }
 
-    private void sendCalendarTo(User sendTo, BotCommand command) {
+    private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command) {
         ZonedDateTime now = ZonedDateTime.now();
         switch (command) {
             case TWO_DAYS -> {
                 String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
                 String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfNextDay(now), DateTimeUtils.FORMAT_FULL);
-                respondWithCalendarData(sendTo, command, timeMin, timeMax, null);
+                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case THIS_WEEK -> {
                 String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
                 String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now), DateTimeUtils.FORMAT_FULL);
-                respondWithCalendarData(sendTo, command, timeMin, timeMax, null);
+                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case NEXT_WEEK -> {
                 String timeMin = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now), DateTimeUtils.FORMAT_FULL);
                 String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now).plusWeeks(1), DateTimeUtils.FORMAT_FULL);
-                respondWithCalendarData(sendTo, command, timeMin, timeMax, null);
+                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case CURRENT_30_DAYS_SEMINARS -> {
                 String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
                 String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfDay(now.plusDays(60)), DateTimeUtils.FORMAT_FULL);
-                respondWithCalendarData(sendTo, command, timeMin, timeMax, "семинар");
+                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "семинар");
             }
             case CURRENT_30_DAYS_TESTS -> {
                 String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
                 String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfDay(now.plusDays(60)), DateTimeUtils.FORMAT_FULL);
-                respondWithCalendarData(sendTo, command, timeMin, timeMax, "зачет");
+                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "зачет");
             }
             default -> {
                 log.error("Unsupported calendar command: {}", command.getCommand());
@@ -74,10 +79,11 @@ public class CalendarCommandHandler implements CommandHandler {
         }
     }
 
-    private void respondWithCalendarData(User fromUser, BotCommand command, String timeMin, String timeMax, String q) {
+    private void respondWithCalendarData(String calendarId, String tgUserId, BotCommand command, String timeMin, String timeMax, String q) {
         log.trace("Command will be executed on a calendar: {} with start date:{}, end date:{} and query:{}",
                 command.getCommand(), timeMin, timeMax, q);
-        CalendarEventsDto events = googleCalendarApi.searchEvents(timeMin, timeMax, q);
+
+        CalendarEventsDto events = googleCalendarApi.searchEvents(calendarId, timeMin, timeMax, q);
         List<String> eventList = new ArrayList<>();
 
         for (CalendarEventItemDto item : events.getItems()) {
@@ -93,41 +99,41 @@ public class CalendarCommandHandler implements CommandHandler {
         SendMessage sendMessage;
         if (eventList.isEmpty()) {
             log.trace("No calendar events found");
-            sendMessage = buildNoCalendarData(fromUser, eventList);
+            sendMessage = buildNoCalendarData(tgUserId, eventList);
         } else {
             log.trace("Found {} calendar events", eventList.size());
-            sendMessage = buildCalendarData(fromUser, command, eventList);
+            sendMessage = buildCalendarData(tgUserId, command, eventList);
         }
 
         try {
-            log.trace("Send calendar events to the telegram conversation: {}", fromUser);
+            log.trace("Send calendar events to the telegram conversation: {}", tgUserId);
             messageSender.send(sendMessage);
         } catch (TelegramApiException e) {
-            log.error("Unable to sent calendar events to the telegram conversation:{}: {}", fromUser, e.getMessage(), e);
+            log.error("Unable to sent calendar events to the telegram conversation:{}: {}", tgUserId, e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
-    private SendMessage buildNoCalendarData(User fromUser, List<String> lines) {
+    private SendMessage buildNoCalendarData(String tgUserId, List<String> lines) {
         String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, "Ничего не нашлось:)");
         tgMessage += String.join("\n\n", lines);
 
-        return buildTelegramSendMessage(fromUser, tgMessage);
+        return buildTelegramSendMessage(tgUserId, tgMessage);
     }
 
     @NotNull
-    private SendMessage buildCalendarData(User fromUser, BotCommand command, List<String> lines) {
+    private SendMessage buildCalendarData(String tgUserId, BotCommand command, List<String> lines) {
         String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2,  command.getDescription() + ":\n\n");
         tgMessage += String.join("\n\n", lines);
 
-        return buildTelegramSendMessage(fromUser, tgMessage);
+        return buildTelegramSendMessage(tgUserId, tgMessage);
     }
 
     @NotNull
-    private SendMessage buildTelegramSendMessage(User fromUser, String tgMessage) {
+    private SendMessage buildTelegramSendMessage(String tgUserId, String tgMessage) {
         String reducedMessage = TelegramMessageUtils.reduceMessageIfNeeds(ParseMode.MARKDOWNV2, tgMessage);
         return new SendMessage(
-                String.valueOf(fromUser.getId()),
+                tgUserId,
                 null,
                 reducedMessage,
                 ParseMode.MARKDOWNV2,
@@ -141,7 +147,7 @@ public class CalendarCommandHandler implements CommandHandler {
         );
     }
 
-    public void sendCalendar(long sendToId, BotCommand command) {
-        sendCalendarTo(new User(sendToId, "", false), command);
+    public void sendCalendar(String calendarId, String sendToId, BotCommand command) {
+        sendCalendarTo(calendarId, sendToId, command);
     }
 }

@@ -36,3 +36,5 @@ build/
 .localconfigs/
 LOG_FOLDER_IS_UNDEFINED/
 .data/
+db/
+.jpb/

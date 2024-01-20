@@ -34,7 +34,7 @@ public class GoogleCalendarApiConfiguration {
     @Bean
     public RetrofitGoogleCalendarApi googleCalendarApi() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://www.googleapis.com/calendar/v3/calendars/" + calendarId + "/")
+                .baseUrl("https://www.googleapis.com/calendar/v3/")
                 .client(buildOkHttpClient())
                 .addConverterFactory(buildConverterFactory())
                 .build();

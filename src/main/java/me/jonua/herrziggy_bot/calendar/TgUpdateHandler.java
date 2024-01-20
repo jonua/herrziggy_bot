@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 
 @Slf4j
 @Service
@@ -25,10 +24,8 @@ public class TgUpdateHandler {
 
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
-        User fromUser = message.getFrom();
-        log.trace("Message from user {}: {}", fromUser, message.getText());
 
-        storage.saveData(update);
+        storage.upsertSource(update);
 
         if (message.isCommand()) {
             for (MessageEntity entity : message.getEntities()) {

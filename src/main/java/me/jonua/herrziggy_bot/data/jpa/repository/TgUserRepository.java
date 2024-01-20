@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface TgUserRepository extends BaseRepository<TgUser> {
-    Optional<TgUser> findByUserId(String id);
+    Optional<TgUser> findByUserId(String userId);
 }
