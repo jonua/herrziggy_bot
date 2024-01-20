@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.ZoneId;
@@ -40,8 +39,13 @@ public class CalendarCommandHandler implements CommandHandler {
     @Override
     public void handleCommand(Message message, BotCommand command) {
         String tgUserId = String.valueOf(message.getFrom().getId());
-        Optional<Calendar> calendar = storageService.findCalendar(tgUserId);
-        sendCalendarTo(calendar.get().getGoogleCalendarId(), tgUserId, command);
+        Optional<Calendar> calendarOpt = storageService.findCalendar(tgUserId);
+        calendarOpt.ifPresentOrElse(calendar -> {
+            sendCalendarTo(calendar.getGoogleCalendarId(), tgUserId, command);
+        }, () -> {
+            log.error("No calendar found for user:{}", tgUserId);
+            throw new RuntimeException("No calendar found for user:" + tgUserId);
+        });
     }
 
     private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command) {
@@ -123,7 +127,7 @@ public class CalendarCommandHandler implements CommandHandler {
 
     @NotNull
     private SendMessage buildCalendarData(String tgUserId, BotCommand command, List<String> lines) {
-        String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2,  command.getDescription() + ":\n\n");
+        String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, command.getDescription() + ":\n\n");
         tgMessage += String.join("\n\n", lines);
 
         return buildTelegramSendMessage(tgUserId, tgMessage);

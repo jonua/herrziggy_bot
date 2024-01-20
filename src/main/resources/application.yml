@@ -14,8 +14,6 @@ google-cloud:
   calendar:
     api:
       key: "-"
-calendar:
-  calendar-id: "-"
 mail:
   username: "-"
   password: "-"

@@ -23,8 +23,6 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.*;
 @Slf4j
 @Configuration
 public class GoogleCalendarApiConfiguration {
-    @Value("${calendar.calendar-id}")
-    private String calendarId;
     @Value("${google-cloud.calendar.api.key}")
     private String googleCloudCalendarApiKey;
 
