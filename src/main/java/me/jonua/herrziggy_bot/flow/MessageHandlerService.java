@@ -20,6 +20,7 @@ public class MessageHandlerService {
             .build();
 
     private final UserFlowService userFlowService;
+    private final DefaultUserFlow defaultUserFlow;
 
     public void waitUserFlow(User user, UserFlowType userFlowType) {
         log.trace("Wait feedback from: {}", user);
@@ -36,6 +37,7 @@ public class MessageHandlerService {
                 userFlowService.perform(flowType, from, update);
             } else {
                 log.debug("No waiting flow handlers found for sender:{}", fromId);
+                defaultUserFlow.perform(update);
             }
         } finally {
             stopWaiting(fromId);

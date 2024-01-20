@@ -16,9 +16,9 @@ public class SendFeedbackPromptMessageUserFlow implements UserFlow {
     private final MessageSender messageSender;
 
     @Override
-    public void perform(Update message) {
-        feedbackHandler.waitUserFlow(message.getMessage().getFrom(), UserFlowType.RECEIVE_FEEDBACK);
-        messageSender.send(giveFeedbackMessage, String.valueOf(message.getMessage().getFrom().getId()), null);
+    public void perform(Update update) {
+        feedbackHandler.waitUserFlow(update.getMessage().getFrom(), UserFlowType.RECEIVE_FEEDBACK);
+        messageSender.send(giveFeedbackMessage, String.valueOf(update.getMessage().getFrom().getId()), null);
     }
 
     @Override

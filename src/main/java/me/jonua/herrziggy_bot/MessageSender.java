@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -55,5 +54,13 @@ public class MessageSender {
 
     public <T extends Serializable> void send(BotApiMethod<T> message) throws TelegramApiException {
         bot.execute(message);
+    }
+
+    public <T extends Serializable> void sendSilently(BotApiMethod<T> message) {
+        try {
+            send(message);
+        } catch (TelegramApiException e) {
+            log.error("Unable to sent message: {}", e.getMessage(), e);
+        }
     }
 }

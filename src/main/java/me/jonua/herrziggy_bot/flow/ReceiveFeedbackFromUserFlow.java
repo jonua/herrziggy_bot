@@ -23,14 +23,14 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
     private final MessageHandlerService messageHandler;
 
     @Override
-    public void perform(Update message) {
-        Long fromId = message.getMessage().getFrom().getId();
+    public void perform(Update update) {
+        Long fromId = update.getMessage().getFrom().getId();
         try {
-            log.info("Feedback received from {}: {}", fromId, message.getMessage().getText());
+            log.info("Feedback received from {}: {}", fromId, update.getMessage().getText());
             messageSender.send(thanksForFeedbackMessage, String.valueOf(fromId), ParseMode.MARKDOWNV2);
 
             String newFeedbackMessage = String.format("#feedback\n\nNew feedback received from @%s: %s",
-                    message.getMessage().getFrom().getUserName(), message.getMessage().getText());
+                    update.getMessage().getFrom().getUserName(), update.getMessage().getText());
             messageSender.send(newFeedbackMessage, sendFeedbackTo, null);
         } finally {
             messageHandler.stopWaiting(fromId);

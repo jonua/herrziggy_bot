@@ -9,12 +9,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Service
 public class EmptyFlow implements UserFlow {
     @Override
-    public void perform(Update message) {
-        log.warn("Empty flow triggered for message {}", message);
+    public void perform(Update update) {
+        log.warn("Empty flow triggered for message {}", update);
     }
 
     @Override
     public boolean isSupport(UserFlowType userFlowType) {
-        return true;
+        return false;
     }
 }
