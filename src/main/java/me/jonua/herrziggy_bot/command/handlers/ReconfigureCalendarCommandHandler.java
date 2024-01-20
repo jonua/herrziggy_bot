@@ -68,8 +68,7 @@ public class ReconfigureCalendarCommandHandler implements CommandHandler {
     }
 
     private String buildCalendarName(Calendar calendar) {
-        return calendar.getEducationTypeDescription() + ", " + calendar.getParticipationTypeDescription() + ", " +
-                "год поступления " + calendar.getEnteringYear();
+        return calendar.getAdditionalInfo();
     }
 
     @Override

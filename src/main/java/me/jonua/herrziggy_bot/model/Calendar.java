@@ -18,6 +18,7 @@ public class Calendar extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EducationParticipationType participationType;
     private String participationTypeDescription;
+    private String additionalInfo;
     private Integer enteringYear;
     private String googleCalendarId;
 }
