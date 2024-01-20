@@ -2,7 +2,7 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.HerrZiggyBot;
+import me.jonua.herrziggy_bot.MessageSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -28,8 +28,8 @@ public class TelegramGroupNotifier {
     @Value("${bot.max-allowed-entity-size-bytes}")
     private Integer attachmentSizeThresholdBytes;
 
-    private final HerrZiggyBot bot;
     private final TelegramMessageBuilderService telegramMessageBuilder;
+    private final MessageSender messageSender;
 
     public void notifySubscribers(Message mailMessage) throws MessagingException {
         MailNotificationContext ctx = MailNotificationContext.fromMessage(mailMessage, zoneId);
@@ -56,18 +56,18 @@ public class TelegramGroupNotifier {
     private void send(SendDocument message) throws TelegramApiException {
         log.trace("The next message will be sent: document {} ({}) with caption {}",
                 message.getDocument().getAttachName(), message.getDocument().getMediaName(), message.getCaption());
-        bot.execute(message);
+        messageSender.send(message);
     }
 
     private void send(SendPhoto message) throws TelegramApiException {
         log.trace("The next message will be sent: photo {} ({}) with caption {}",
                 message.getPhoto().getAttachName(), message.getPhoto().getMediaName(), message.getCaption());
-        bot.execute(message);
+        messageSender.send(message);
     }
 
     private void send(SendMessage message) throws TelegramApiException {
         log.trace("The next message will be sent: message {}: {}",
                 message.getReplyMarkup(), message.getText());
-        bot.execute(message);
+        messageSender.send(message);
     }
 }
