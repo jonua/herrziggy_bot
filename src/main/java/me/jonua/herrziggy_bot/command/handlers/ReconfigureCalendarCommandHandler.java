@@ -10,6 +10,7 @@ import me.jonua.herrziggy_bot.flow.MessageHandlerService;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -32,7 +33,8 @@ public class ReconfigureCalendarCommandHandler implements CommandHandler {
 
     @Override
     public void handleCommand(BotCommand command, User from, Update update) {
-        List<InlineKeyboardButton> buttons = storageService.getCalendars().stream()
+        Sort sorting = Sort.by(Sort.Order.asc("createDate"));
+        List<InlineKeyboardButton> buttons = storageService.getCalendars(sorting).stream()
                 .map(this::buildCalendarButton)
                 .toList();
 

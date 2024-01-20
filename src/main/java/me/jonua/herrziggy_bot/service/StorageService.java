@@ -9,6 +9,7 @@ import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
 import me.jonua.herrziggy_bot.model.TgUser;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -104,7 +105,7 @@ public class StorageService {
     }
 
     @Transactional
-    public List<Calendar> getCalendars() {
-        return calendarRepository.findAll();
+    public List<Calendar> getCalendars(Sort sort) {
+        return calendarRepository.findAll(sort);
     }
 }
