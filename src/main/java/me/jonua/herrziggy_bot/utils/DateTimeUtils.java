@@ -22,7 +22,7 @@ public final class DateTimeUtils {
     public static ZonedDateTime getLastDateTimeOfWeek(ZonedDateTime zdt) {
         Calendar instance = Calendar.getInstance();
         instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 23, 59, 59);
-        instance.set(Calendar.DAY_OF_WEEK, Calendar.getInstance().getFirstDayOfWeek() + 6);
+        instance.set(Calendar.DAY_OF_WEEK, Calendar.getInstance().getFirstDayOfWeek() + 7);
         return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("Europe/Moscow"));
     }
 
