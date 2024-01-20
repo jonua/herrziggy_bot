@@ -17,7 +17,16 @@ public class UserFlowService {
     private final EmptyFlow emptyFlow;
 
     public void perform(UserFlowType userFlowType, Message message) {
-        findFlow(userFlowType).perform(message);
+        UserFlow flow = findFlow(userFlowType);
+        if (log.isTraceEnabled()) {
+            log.trace("FLow:{} will be performed by:{} for sender:{}. Message {}",
+                    userFlowType, flow.getClass(), message.getFrom().getId(), message);
+        } else {
+            log.debug("FLow:{} will be performed by:{} for sender {}",
+                    userFlowType, flow.getClass(), message.getFrom().getId());
+        }
+
+        flow.perform(message);
     }
 
     private UserFlow findFlow(UserFlowType userFlowType) {

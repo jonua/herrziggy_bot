@@ -1,12 +1,13 @@
-package me.jonua.herrziggy_bot.calendar;
+package me.jonua.herrziggy_bot.command.handlers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
+import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
-import me.jonua.herrziggy_bot.command.CommandHandler;
+import me.jonua.herrziggy_bot.command.CommandType;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.DateTimeUtils;
@@ -22,6 +23,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ public class CalendarCommandHandler implements CommandHandler {
     private final StorageService storageService;
 
     @Override
-    public void handleCommand(Message message, BotCommand command) {
+    public void handleCommand(BotCommand command, Message message) {
         String tgUserId = String.valueOf(message.getFrom().getId());
         Optional<Calendar> calendarOpt = storageService.findCalendar(tgUserId);
         calendarOpt.ifPresentOrElse(calendar -> {
@@ -46,6 +48,12 @@ public class CalendarCommandHandler implements CommandHandler {
             log.error("No calendar found for user:{}", tgUserId);
             throw new RuntimeException("No calendar found for user:" + tgUserId);
         });
+    }
+
+    @Override
+    public boolean isSupport(BotCommand command) {
+        return Arrays.stream(BotCommand.values())
+                .anyMatch(cmd -> CommandType.CALENDAR.equals(command.getCommandType()));
     }
 
     private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command) {
