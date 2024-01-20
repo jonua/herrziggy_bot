@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
+import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -29,8 +30,8 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
             log.info("Feedback received from {}: {}", fromId, update.getMessage().getText());
             messageSender.send(thanksForFeedbackMessage, String.valueOf(fromId), ParseMode.MARKDOWNV2);
 
-            String newFeedbackMessage = String.format("#feedback\n\nNew feedback received from @%s: %s",
-                    update.getMessage().getFrom().getUserName(), update.getMessage().getText());
+            String newFeedbackMessage = String.format("#feedback\nNew feedback received from %s: %s",
+                    TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()), update.getMessage().getText());
             messageSender.send(newFeedbackMessage, sendFeedbackTo, null);
         } finally {
             messageHandler.stopWaiting(fromId);
