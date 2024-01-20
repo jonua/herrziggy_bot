@@ -30,15 +30,26 @@ public class DefaultUserFlow implements UserFlow {
 
     private String buildUserInfo(Update update) {
         Message message = update.getMessage();
-        String result = "-unknown user-";
         if (message == null) {
-            return result;
+            return "-unknown user-";
         }
 
+        String result = "";
         User from = message.getFrom();
-        result = String.format("%s %s", from.getFirstName(), from.getLastName());
+        if (StringUtils.isNotEmpty(from.getFirstName())) {
+            if (StringUtils.isNotEmpty(from.getLastName())) {
+                result = String.format("%s %s", from.getFirstName(), from.getLastName());
+            } else {
+                result = from.getFirstName();
+            }
+        }
+
         if (!StringUtils.isEmpty(from.getUserName())) {
-            result = "@" + from.getUserName() + " (" + result + ")";
+            if (StringUtils.isNotEmpty(result)) {
+                result = "@" + from.getUserName() + " (" + result + ")";
+            } else {
+                result = "@" + from.getUserName();
+            }
         }
 
         return result;
