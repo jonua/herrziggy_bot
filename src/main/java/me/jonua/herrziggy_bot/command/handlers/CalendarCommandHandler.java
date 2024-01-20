@@ -14,7 +14,6 @@ import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -31,7 +30,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Lazy))
+@RequiredArgsConstructor
 public class CalendarCommandHandler implements CommandHandler {
     @Value("${default-zone-id}")
     private ZoneId zoneId;

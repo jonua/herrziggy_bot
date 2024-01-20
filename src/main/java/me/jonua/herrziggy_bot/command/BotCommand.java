@@ -12,7 +12,8 @@ public enum BotCommand {
     CURRENT_30_DAYS_TESTS(BotCommandType.CALENDAR, "30days_tests", "Зачеты на ближайшие 30 дней", true),
     RECONFIGURE_CALENDAR(BotCommandType.CALENDAR_SETTINGS, "reconfigure_calendar", "Поменять календарь", true),
     FEEDBACK(BotCommandType.FEEDBACK, "feedback", "Обратная связь", true),
-    CANCEL_FEEDBACK(BotCommandType.SERVICE, "cancel_feedback", "Отменить фидбек", false);
+    CANCEL_FEEDBACK(BotCommandType.CANCEL_FEEDBACK, "cancel_feedback", "Отменить фидбек", false),
+    START_BOT(BotCommandType.START_BOT, "start", "Start", false);
 
     private final BotCommandType commandType;
     private final String command;

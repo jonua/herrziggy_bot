@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ServiceCommandHandler implements CommandHandler {
+public class CancelFeedbackCommandHandler implements CommandHandler {
     private final MessageHandlerService messageHandler;
 
     public void handleCommand(BotCommand command, User from, Update update) {
@@ -22,6 +22,6 @@ public class ServiceCommandHandler implements CommandHandler {
 
     @Override
     public boolean isSupport(BotCommand command) {
-        return BotCommandType.SERVICE.equals(command.getCommandType());
+        return BotCommandType.CANCEL_FEEDBACK.equals(command.getCommandType());
     }
 }
