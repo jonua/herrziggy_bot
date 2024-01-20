@@ -6,16 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.time.Duration;
-import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MessageHandler {
+public class MessageHandlerService {
     private final static Cache<Long, UserFlowType> CACHE = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(12))
             .build();
@@ -27,23 +26,14 @@ public class MessageHandler {
         CACHE.put(user.getId(), userFlowType);
     }
 
-    public void handleMessage(Message message) {
-        Optional<Long> fromIdOpt = Optional.ofNullable(message)
-                .map(Message::getFrom)
-                .map(User::getId);
-
-        if (fromIdOpt.isEmpty()) {
-            log.warn("Empty sender: {}", message);
-            return;
-        }
-
-        Long fromId = fromIdOpt.get();
+    public void handleMessage(User from, Update update) {
+        Long fromId = from.getId();
 
         try {
             UserFlowType flowType = CACHE.getIfPresent(fromId);
             if (flowType != null) {
                 log.debug("Found waiting flow handler for sender:{}: {}", fromId, flowType);
-                userFlowService.perform(flowType, message);
+                userFlowService.perform(flowType, from, update);
             } else {
                 log.debug("No waiting flow handlers found for sender:{}", fromId);
             }

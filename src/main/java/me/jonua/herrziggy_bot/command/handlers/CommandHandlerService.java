@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
@@ -16,17 +17,17 @@ public class CommandHandlerService {
 
     private final EmptyCommandHandler emptyCommandHandler;
 
-    public void handleCommand(BotCommand command, Message message) {
+    public void handleCommand(BotCommand command, User from, Update update) {
         CommandHandler handler = findHandler(command);
         if (log.isTraceEnabled()) {
             log.trace("Command:{} will be handled by:{} for sender:{}. Message {}",
-                    command, handler.getClass(), message.getFrom().getId(), message);
+                    command, handler.getClass(), update.getMessage().getFrom().getId(), update);
         } else {
             log.debug("Command:{} will be handled by:{} for sender {}",
-                    command, handler.getClass(), message.getFrom().getId());
+                    command, handler.getClass(), update.getMessage().getFrom().getId());
         }
 
-        handler.handleCommand(command, message);
+        handler.handleCommand(command, from, update);
     }
 
     private CommandHandler findHandler(BotCommand command) {

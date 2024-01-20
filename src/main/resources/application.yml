@@ -10,6 +10,9 @@ bot:
     sent-to-user-id: "-"
     thanks-for-feedback-message: Thanks for you feedback!
     give-feedback-message: Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены
+  calendar:
+    select-your-calendar-message: Выбери календарь
+    reconfigured-message: Все готово, теперь ты можешь получать эвенты из календаря, отправляя команды боту из меню
 google-cloud:
   calendar:
     api:

@@ -7,17 +7,19 @@ import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
-import me.jonua.herrziggy_bot.command.CommandType;
+import me.jonua.herrziggy_bot.command.BotCommandType;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.ZoneId;
@@ -29,7 +31,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Lazy))
 public class CalendarCommandHandler implements CommandHandler {
     @Value("${default-zone-id}")
     private ZoneId zoneId;
@@ -37,23 +39,24 @@ public class CalendarCommandHandler implements CommandHandler {
     private final GoogleCalendarApi googleCalendarApi;
     private final MessageSender messageSender;
     private final StorageService storageService;
+    private final CommandHandlerService commandHandlerService;
 
     @Override
-    public void handleCommand(BotCommand command, Message message) {
-        String tgUserId = String.valueOf(message.getFrom().getId());
-        Optional<Calendar> calendarOpt = storageService.findCalendar(tgUserId);
+    public void handleCommand(BotCommand command, User from, Update update) {
+        String tgUserId = String.valueOf(update.getMessage().getFrom().getId());
+        Optional<Calendar> calendarOpt = storageService.findCalendarByUser(tgUserId);
         calendarOpt.ifPresentOrElse(calendar -> {
             sendCalendarTo(calendar.getGoogleCalendarId(), tgUserId, command);
         }, () -> {
-            log.error("No calendar found for user:{}", tgUserId);
-            throw new RuntimeException("No calendar found for user:" + tgUserId);
+            log.warn("No calendar found for user:{}", tgUserId);
+            commandHandlerService.handleCommand(BotCommand.RECONFIGURE_CALENDAR, from, update);
         });
     }
 
     @Override
     public boolean isSupport(BotCommand command) {
         return Arrays.stream(BotCommand.values())
-                .anyMatch(cmd -> CommandType.CALENDAR.equals(command.getCommandType()));
+                .anyMatch(cmd -> BotCommandType.CALENDAR.equals(command.getCommandType()));
     }
 
     private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command) {

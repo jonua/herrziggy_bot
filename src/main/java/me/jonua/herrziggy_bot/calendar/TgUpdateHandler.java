@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.handlers.CommandHandlerService;
-import me.jonua.herrziggy_bot.flow.MessageHandler;
+import me.jonua.herrziggy_bot.flow.MessageHandlerService;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,24 +15,34 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Service
 @RequiredArgsConstructor
 public class TgUpdateHandler {
-    private final MessageHandler messageHandler;
+    private final MessageHandlerService messageHandler;
     private final StorageService storage;
-    private final CommandHandlerService commandHandlerServoce;
+    private final CommandHandlerService commandHandlerService;
 
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
 
-        storage.upsertSource(update);
 
-        if (message.isCommand()) {
-            for (MessageEntity entity : message.getEntities()) {
-                if (entity.getType().equalsIgnoreCase("bot_command")) {
-                    BotCommand command = BotCommand.fromString(entity.getText());
-                    commandHandlerServoce.handleCommand(command, message);
+        if (message != null) {
+            storage.upsertSourceUser(update.getMessage().getFrom());
+            storage.upsertSourceChat(update.getMessage().getChat());
+
+            if (message.isCommand()) {
+                for (MessageEntity entity : message.getEntities()) {
+                    if (entity.getType().equalsIgnoreCase("bot_command")) {
+                        BotCommand command = BotCommand.fromString(entity.getText());
+                        commandHandlerService.handleCommand(command, update.getMessage().getFrom(), update);
+                    }
                 }
+            } else if (message.isUserMessage()) {
+                messageHandler.handleMessage(update.getMessage().getFrom(), update);
             }
-        } else if (message.isUserMessage()) {
-            messageHandler.handleMessage(message);
+        } else if (update.hasCallbackQuery()) {
+            storage.upsertSourceUser(update.getCallbackQuery().getFrom());
+            storage.upsertSourceChat(update.getCallbackQuery().getMessage().getChat());
+            messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
+        } else {
+            log.error("Unhandled update: {}", update);
         }
     }
 }

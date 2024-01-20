@@ -6,6 +6,8 @@ import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
@@ -16,17 +18,17 @@ public class UserFlowService {
     private final List<UserFlow> userFlows;
     private final EmptyFlow emptyFlow;
 
-    public void perform(UserFlowType userFlowType, Message message) {
+    public void perform(UserFlowType userFlowType, User from, Update update) {
         UserFlow flow = findFlow(userFlowType);
         if (log.isTraceEnabled()) {
             log.trace("FLow:{} will be performed by:{} for sender:{}. Message {}",
-                    userFlowType, flow.getClass(), message.getFrom().getId(), message);
+                    userFlowType, flow.getClass(), from.getId(), update);
         } else {
             log.debug("FLow:{} will be performed by:{} for sender {}",
-                    userFlowType, flow.getClass(), message.getFrom().getId());
+                    userFlowType, flow.getClass(), from.getId());
         }
 
-        flow.perform(message);
+        flow.perform(update);
     }
 
     private UserFlow findFlow(UserFlowType userFlowType) {

@@ -3,7 +3,7 @@ package me.jonua.herrziggy_bot;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.calendar.TgUpdateHandler;
 import me.jonua.herrziggy_bot.command.BotCommand;
-import me.jonua.herrziggy_bot.command.CommandType;
+import me.jonua.herrziggy_bot.command.BotCommandType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,13 +38,13 @@ public class BotConfiguration {
         try {
             HerrZiggyBot bot = new HerrZiggyBot(new DefaultBotOptions(), botToken, calendarAdapter);
 
-            List<CommandType> commandTypes = new ArrayList<>();
-            commandTypes.add(CommandType.CALENDAR);
+            List<BotCommandType> commandTypes = new ArrayList<>();
+            commandTypes.add(BotCommandType.CALENDAR);
 
             log.info("feedback feature enabled: " + feedbackEnabled);
 
             if (feedbackEnabled) {
-                commandTypes.add(CommandType.FEEDBACK);
+                commandTypes.add(BotCommandType.FEEDBACK);
 
                 WebhookInfo webhookInfo = bot.getWebhookInfo();
                 webhookInfo.setAllowedUpdates(List.of(AllowedUpdates.MESSAGE));
@@ -61,7 +61,7 @@ public class BotConfiguration {
         }
     }
 
-    private void initializeCommands(HerrZiggyBot bot, List<CommandType> types) throws TelegramApiException {
+    private void initializeCommands(HerrZiggyBot bot, List<BotCommandType> types) throws TelegramApiException {
         List<? extends org.telegram.telegrambots.meta.api.objects.commands.BotCommand> botCommands = Arrays.stream(BotCommand.values())
                 .filter(command -> types.contains(command.getCommandType()))
                 .map(botCommand -> org.telegram.telegrambots.meta.api.objects.commands.BotCommand.builder().command(botCommand.getCommand()).description(botCommand.getDescription()).build())

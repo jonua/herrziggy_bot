@@ -7,7 +7,7 @@ import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Slf4j
 @Service
@@ -20,17 +20,17 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
     private String sendFeedbackTo;
 
     private final MessageSender messageSender;
-    private final MessageHandler messageHandler;
+    private final MessageHandlerService messageHandler;
 
     @Override
-    public void perform(Message message) {
-        Long fromId = message.getFrom().getId();
+    public void perform(Update message) {
+        Long fromId = message.getMessage().getFrom().getId();
         try {
-            log.info("Feedback received from {}: {}", fromId, message.getText());
+            log.info("Feedback received from {}: {}", fromId, message.getMessage().getText());
             messageSender.send(thanksForFeedbackMessage, String.valueOf(fromId), ParseMode.MARKDOWNV2);
 
             String newFeedbackMessage = String.format("#feedback\n\nNew feedback received from @%s: %s",
-                    message.getFrom().getUserName(), message.getText());
+                    message.getMessage().getFrom().getUserName(), message.getMessage().getText());
             messageSender.send(newFeedbackMessage, sendFeedbackTo, null);
         } finally {
             messageHandler.stopWaiting(fromId);

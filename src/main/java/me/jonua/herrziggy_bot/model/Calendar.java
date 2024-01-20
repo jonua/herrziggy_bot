@@ -14,8 +14,10 @@ import me.jonua.herrziggy_bot.enums.EducationType;
 public class Calendar extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EducationType educationType;
+    private String educationTypeDescription;
     @Enumerated(EnumType.STRING)
     private EducationParticipationType participationType;
+    private String participationTypeDescription;
     private Integer enteringYear;
     private String googleCalendarId;
 }
