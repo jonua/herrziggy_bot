@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class DefaultUserFlow implements UserFlow {
+public class DefaultResponseUserFlow implements UserFlow {
     @Value("${bot.feedback.sent-to-user-id}")
     private String botAdminUserId;
 

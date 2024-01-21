@@ -20,7 +20,7 @@ public class MessageHandlerService {
             .build();
 
     private final UserFlowService userFlowService;
-    private final DefaultUserFlow defaultUserFlow;
+    private final DefaultResponseUserFlow defaultUserFlow;
 
     public void waitUserFlow(User user, UserFlowType userFlowType) {
         log.trace("Wait feedback from: {}", user);
