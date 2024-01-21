@@ -25,8 +25,6 @@ public class ReceiveNewCalendarConfigUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        messageHandlerService.stopWaiting(update.getCallbackQuery().getFrom().getId());
-
         String callbackData = update.getCallbackQuery().getData();
         String[] config = callbackData.split(":");
         String newCalendarUuid = config[2];
