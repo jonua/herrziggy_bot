@@ -43,6 +43,8 @@ public class CalendarService {
                     Pair.of(getLastDateTimeOfWeek(subjectDate), getLastDateTimeOfWeek(subjectDate).plusWeeks(1));
             case CURRENT_30_DAYS_SEMINARS -> Pair.of(getStartOfDay(subjectDate), getEndOfDay(subjectDate.plusDays(60)));
             case CURRENT_30_DAYS_TESTS -> Pair.of(getStartOfDay(subjectDate), getEndOfDay(subjectDate.plusDays(60)));
+            case FULL_SEMESTER_SEMINARS -> Pair.of(getStartOfDay(subjectDate), getEndOfHalfYear(subjectDate));
+            case FULL_SEMESTER_TESTS -> Pair.of(getStartOfDay(subjectDate), getEndOfHalfYear(subjectDate));
         };
     }
 }

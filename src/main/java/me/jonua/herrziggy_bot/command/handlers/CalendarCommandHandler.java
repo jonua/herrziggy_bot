@@ -78,11 +78,19 @@ public class CalendarCommandHandler implements CommandHandler {
                 respondWithCalendarData(tgUserId, command, events);
             }
             case CURRENT_30_DAYS_SEMINARS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_SEMINARS, calendarId, "семиран");
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_SEMINARS, calendarId, "семинар");
                 respondWithCalendarData(tgUserId, command, events);
             }
             case CURRENT_30_DAYS_TESTS -> {
                 CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_TESTS, calendarId, "зачет");
+                respondWithCalendarData(tgUserId, command, events);
+            }
+            case FULL_SEMESTER_SEMINARS -> {
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.FULL_SEMESTER_SEMINARS, calendarId, "семинар");
+                respondWithCalendarData(tgUserId, command, events);
+            }
+            case FULL_SEMESTER_TESTS -> {
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.FULL_SEMESTER_TESTS, calendarId, "зачет");
                 respondWithCalendarData(tgUserId, command, events);
             }
 

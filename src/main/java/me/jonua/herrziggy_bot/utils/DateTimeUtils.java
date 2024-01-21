@@ -1,5 +1,6 @@
 package me.jonua.herrziggy_bot.utils;
 
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,5 +44,22 @@ public final class DateTimeUtils {
         Calendar instance = Calendar.getInstance();
         instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 0, 0, 0);
         return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("UTC"));
+    }
+
+    public static ZonedDateTime getEndOfHalfYear(ZonedDateTime zdt) {
+        int currentMonthValue = zdt.getMonthValue();
+        Month targetMonthValue = Month.JULY;
+        if (currentMonthValue > Month.JULY.getValue()) {
+            targetMonthValue = Month.DECEMBER;
+        }
+        Calendar instance = Calendar.getInstance();
+        instance.set(zdt.getYear(), targetMonthValue.getValue() - 1, getLastDayOfMonth(targetMonthValue), 23, 59, 59);
+        return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("UTC"));
+    }
+
+    public static int getLastDayOfMonth(Month month) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, month.getValue() - 1);
+        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 }

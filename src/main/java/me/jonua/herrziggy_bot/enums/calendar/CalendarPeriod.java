@@ -9,6 +9,8 @@ public enum CalendarPeriod {
     NEXT_WEEK("Календарь на следующую неделю"),
     CURRENT_30_DAYS_SEMINARS("Семинары на ближайшие 30 дней"),
     CURRENT_30_DAYS_TESTS("Зачеты на ближайшие 30 дней"),
+    FULL_SEMESTER_SEMINARS("Семинары на весь семестр"),
+    FULL_SEMESTER_TESTS("Зачеты на весь семестр"),
     ;
 
     private final String description;

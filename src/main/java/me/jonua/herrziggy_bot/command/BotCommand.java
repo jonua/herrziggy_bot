@@ -10,6 +10,8 @@ public enum BotCommand {
     NEXT_WEEK(BotCommandType.CALENDAR, "next_week", "Календарь на следующую неделю", true),
     CURRENT_30_DAYS_SEMINARS(BotCommandType.CALENDAR, "30days_seminars", "Семинары на ближайшие 30 дней", true),
     CURRENT_30_DAYS_TESTS(BotCommandType.CALENDAR, "30days_tests", "Зачеты на ближайшие 30 дней", true),
+    FULL_SEMESTER_SEMINARS(BotCommandType.CALENDAR, "semesters_seminars", "Семинары на весь семестр", true),
+    FULL_SEMESTER_TESTS(BotCommandType.CALENDAR, "semester_tests", "Зачеты на весь семестр", true),
     RECONFIGURE_CALENDAR(BotCommandType.CALENDAR_SETTINGS, "reconfigure_calendar", "Поменять календарь", true),
     FEEDBACK(BotCommandType.FEEDBACK, "feedback", "Обратная связь", true),
     CANCEL_FEEDBACK(BotCommandType.CANCEL_FEEDBACK, "cancel_feedback", "Отменить фидбек", false),
