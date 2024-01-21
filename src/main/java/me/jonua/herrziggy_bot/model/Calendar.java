@@ -21,4 +21,5 @@ public class Calendar extends BaseEntity {
     private String additionalInfo;
     private Integer enteringYear;
     private String googleCalendarId;
+    private Integer orderValue;
 }
