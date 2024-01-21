@@ -10,7 +10,7 @@ import java.util.Locale;
 public final class DateTimeUtils {
     public static final String FORMAT_FULL = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final String FORMAT_FULL_DATE_SHORT_TIME = "MMM d, yyyy HH:mm";
-    public static final String FORMAT_SHORT_DATE_WITH_DAY_NAME = "EEE, MMM d";
+    public static final String FORMAT_SHORT_DATE_WITH_DAY_NAME = "EEE, d MMM";
     public static final String FORMAT_SHORT_TIME = "HH:mm";
 
     public static String formatDate(ZonedDateTime zdt, Locale locale, String pattern) {
