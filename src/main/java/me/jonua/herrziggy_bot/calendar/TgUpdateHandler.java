@@ -27,8 +27,8 @@ public class TgUpdateHandler {
 
 
         if (message != null) {
-            storage.upsertSourceUser(update.getMessage().getFrom());
-            storage.upsertSourceChat(update.getMessage().getChat());
+            storage.upsertSource(update.getMessage().getFrom());
+            storage.upsertSource(update.getMessage().getChat());
 
             if (message.isCommand()) {
                 for (MessageEntity entity : message.getEntities()) {
@@ -41,8 +41,8 @@ public class TgUpdateHandler {
                 messageHandler.handleMessage(update.getMessage().getFrom(), update);
             }
         } else if (update.hasCallbackQuery()) {
-            storage.upsertSourceUser(update.getCallbackQuery().getFrom());
-            storage.upsertSourceChat(update.getCallbackQuery().getMessage().getChat());
+            storage.upsertSource(update.getCallbackQuery().getFrom());
+            storage.upsertSource(update.getCallbackQuery().getMessage().getChat());
             if (!userFlowService.callFlow(update)) {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }

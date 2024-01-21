@@ -16,6 +16,8 @@ public class TgSource extends BaseEntity {
     private String lastName;
     private String username;
     private String title;
+    private Boolean isBot;
+    private Boolean isPremium;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Calendar calendar;

@@ -14,15 +14,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ScheduledGroupNotifier {
     @Value("${bot.chat-id}")
-    private String groupId;
+    private String sourceId;
 
     private final CalendarCommandHandler calendarCommandHandler;
     private final StorageService storageService;
 
     @Scheduled(cron = "0 0 7 * * 1") // every monday at 7 o'clock by UTC
     private void notifyAlAboutCalendarEvents() {
-        log.info("Notifying group {} about next week events...", groupId);
-        storageService.findCalendarByGroup(groupId)
-                .ifPresent(calendar -> calendarCommandHandler.sendCalendar(calendar.getGoogleCalendarId(), groupId, BotCommand.THIS_WEEK));
+        log.info("Notifying group {} about next week events...", sourceId);
+        storageService.findCalendarByGroup(sourceId)
+                .ifPresent(calendar -> calendarCommandHandler.sendCalendar(calendar.getGoogleCalendarId(), sourceId, BotCommand.THIS_WEEK));
     }
 }

@@ -4,11 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
-import me.jonua.herrziggy_bot.data.jpa.repository.TgUserRepository;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
-import me.jonua.herrziggy_bot.model.TgUser;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -22,36 +20,35 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class StorageService {
-    private final TgUserRepository tgUserRepository;
     private final CalendarRepository calendarRepository;
     private final TgSourceRepository tgSourceRepository;
 
     @Transactional
-    public void upsertSourceUser(User sourceUser) {
-        Optional<TgUser> foundUser = findUserByTgId(sourceUser.getId());
-        if (foundUser.isEmpty()) {
-            TgUser newUser = new TgUser();
-            patchUser(newUser, sourceUser);
+    public void upsertSource(User source) {
+        Optional<TgSource> foundSource = findSourceBySourceId(source.getId());
+        if (foundSource.isEmpty()) {
+            TgSource newUser = new TgSource();
+            patchSource(newUser, source);
         } else {
-            TgUser existsUser = foundUser.get();
-            patchUser(existsUser, sourceUser);
+            TgSource existsUser = foundSource.get();
+            patchSource(existsUser, source);
         }
     }
 
     @Transactional
-    public void upsertSourceChat(Chat sourceChat) {
-        Optional<TgSource> foundGroup = tgSourceRepository.findBySourceId(String.valueOf(sourceChat.getId()));
+    public void upsertSource(Chat source) {
+        Optional<TgSource> foundGroup = tgSourceRepository.findPrivateBySourceId(String.valueOf(source.getId()));
         if (foundGroup.isEmpty()) {
             TgSource newUser = new TgSource();
-            patchSource(newUser, sourceChat);
+            patchSource(newUser, source);
         } else {
             TgSource existsUser = foundGroup.get();
-            patchSource(existsUser, sourceChat);
+            patchSource(existsUser, source);
         }
     }
 
-    private void patchUser(TgUser entity, User tgUser) {
-        entity.setUserId(String.valueOf(tgUser.getId()));
+    private void patchSource(TgSource entity, User tgUser) {
+        entity.setSourceId(String.valueOf(tgUser.getId()));
         entity.setFirstName(tgUser.getFirstName());
         entity.setLastName(tgUser.getLastName());
         entity.setUsername(tgUser.getUserName());
@@ -60,7 +57,7 @@ public class StorageService {
 
         entity.setUpdateDate(new Date());
 
-        tgUserRepository.save(entity);
+        tgSourceRepository.save(entity);
     }
 
     private void patchSource(TgSource entity, Chat tgGroup) {
@@ -78,13 +75,13 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<TgUser> findUserByTgId(Long tgUserId) {
-        return tgUserRepository.findByUserId(String.valueOf(tgUserId));
+    public Optional<TgSource> findSourceBySourceId(Long tgUserId) {
+        return tgSourceRepository.findPrivateBySourceId(String.valueOf(tgUserId));
     }
 
     @Transactional
     public Optional<Calendar> findCalendarByUser(String tgUserId) {
-        return calendarRepository.findByUserId(tgUserId);
+        return calendarRepository.findBySourceId(tgUserId);
     }
 
     @Transactional
@@ -96,10 +93,10 @@ public class StorageService {
     public void assignCalendar(Long tgUserId, String calendarUuid) {
         findCalendarByUuid(calendarUuid)
                 .ifPresent(calendar -> {
-                    findUserByTgId(tgUserId).ifPresent(user -> {
-                        user.setCalendar(calendar);
-                        tgUserRepository.save(user);
-                        log.info("Calendar updated for user:{}. New calendar is {}", tgUserId, calendar.getUuid());
+                    findSourceBySourceId(tgUserId).ifPresent(source -> {
+                        source.setCalendar(calendar);
+                        tgSourceRepository.save(source);
+                        log.info("Calendar updated for source:{}. New calendar is {}", tgUserId, calendar.getUuid());
                     });
                 });
     }

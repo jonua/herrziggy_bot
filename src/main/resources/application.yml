@@ -28,10 +28,10 @@ mail:
     timeout: 10000
 spring:
   datasource:
-    url: jdbc:h2:~/test;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/herrziggy
+    username: postgres
+    password: root
+    driverClassName: org.postgresql.Driver
   jpa:
     open-in-view: false
 logging:
