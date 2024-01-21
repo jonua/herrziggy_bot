@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public enum BotCommand {
-    TWO_DAYS(BotCommandType.CALENDAR, "two_days", "Календарь на ближайшие 2 дня (включая сегодняшний)", true),
+    TWO_DAYS(BotCommandType.CALENDAR, "two_days", "Календарь на ближайшие 2 дня (включая сегодня)", true),
     THIS_WEEK(BotCommandType.CALENDAR, "this_week", "Календарь на эту неделю", true),
     NEXT_WEEK(BotCommandType.CALENDAR, "next_week", "Календарь на следующую неделю", true),
     CURRENT_30_DAYS_SEMINARS(BotCommandType.CALENDAR, "30days_seminars", "Семинары на ближайшие 30 дней", true),

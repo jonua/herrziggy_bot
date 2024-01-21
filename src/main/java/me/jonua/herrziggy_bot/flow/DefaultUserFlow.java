@@ -2,6 +2,7 @@ package me.jonua.herrziggy_bot.flow;
 
 import lombok.RequiredArgsConstructor;
 import me.jonua.herrziggy_bot.MessageSender;
+import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,7 +38,14 @@ public class DefaultUserFlow implements UserFlow {
     }
 
     private void respondWithIntoToUser(User from) {
-        messageSender.send(botCommonInfoMessage, from.getId());
+        List<String> commands = new ArrayList<>();
+        Arrays.stream(BotCommand.values()).filter(BotCommand::isIncludeInBotMenu)
+                        .forEach(command ->  commands.add("/" + command.getCommand() + " - " + command.getDescription()));
+
+        String message = botCommonInfoMessage + "\n\n";
+        message += String.join("\n", commands);
+
+        messageSender.send(message, from.getId());
     }
 
     private void forwardMessageToBotAdmin(Update update) {
