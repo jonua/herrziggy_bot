@@ -1,5 +1,6 @@
 default-zone-id: "-"
 bot:
+  locale: ru
   token: "-"
   name: "-"
   chat-id: "-"

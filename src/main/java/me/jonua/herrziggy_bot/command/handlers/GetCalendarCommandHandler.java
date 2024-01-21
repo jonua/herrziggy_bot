@@ -22,10 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 
@@ -35,6 +32,8 @@ import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 public class GetCalendarCommandHandler implements CommandHandler {
     @Value("${default-zone-id}")
     private ZoneId zoneId;
+    @Value("${bot.locale}")
+    private Locale locale;
 
     private final MessageSender messageSender;
     private final StorageService storageService;
@@ -102,9 +101,9 @@ public class GetCalendarCommandHandler implements CommandHandler {
 
         for (CalendarEventItemDto item : events.getItems()) {
             String line = String.format("__%s__ _%s\\-%s_: *%s*",
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, FORMAT_SHORT_DATE_WITH_DAY_NAME)),
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, FORMAT_SHORT_TIME)),
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getEnd().getDateTime(), zoneId, FORMAT_SHORT_TIME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, locale, FORMAT_SHORT_DATE_WITH_DAY_NAME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, locale, FORMAT_SHORT_TIME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getEnd().getDateTime(), zoneId, locale, FORMAT_SHORT_TIME)),
                     TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, item.getSummary())
             );
             eventList.add(line);

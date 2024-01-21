@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Locale;
 
 public final class DateTimeUtils {
     public static final String FORMAT_FULL = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -12,12 +13,12 @@ public final class DateTimeUtils {
     public static final String FORMAT_SHORT_DATE_WITH_DAY_NAME = "EEE, MMM d";
     public static final String FORMAT_SHORT_TIME = "HH:mm";
 
-    public static String formatDate(ZonedDateTime zdt, String pattern) {
-        return formatDate(zdt, ZoneId.systemDefault(), pattern);
+    public static String formatDate(ZonedDateTime zdt, Locale locale, String pattern) {
+        return formatDate(zdt, ZoneId.systemDefault(), locale, pattern);
     }
 
-    public static String formatDate(ZonedDateTime zdt, ZoneId zoneId, String pattern) {
-        return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.ofInstant(zdt.toInstant(), zoneId));
+    public static String formatDate(ZonedDateTime zdt, ZoneId zoneId, Locale locale, String pattern) {
+        return DateTimeFormatter.ofPattern(pattern, locale).format(ZonedDateTime.ofInstant(zdt.toInstant(), zoneId));
     }
 
     public static ZonedDateTime getLastDateTimeOfWeek(ZonedDateTime zdt) {

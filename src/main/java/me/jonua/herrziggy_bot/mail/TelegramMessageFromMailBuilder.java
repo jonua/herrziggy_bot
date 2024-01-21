@@ -19,6 +19,7 @@ import javax.mail.internet.ContentType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.reduceMessageIfNeeds;
@@ -28,6 +29,7 @@ import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.tgEscape;
 @RequiredArgsConstructor
 class TelegramMessageFromMailBuilder extends MailMessageParser {
     private final MailNotificationContext ctx;
+    private final Locale locale;
     private final StringBuilder tgMessageBuilder = new StringBuilder();
     List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> messages = new ArrayList<>();
     private String hashTags;
@@ -40,7 +42,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
 
             String stringMessage = tgMessageBuilder.toString();
 
-            messages.add(buildTgSendMessage(stringMessage));
+            messages.add(buildTgSendMessage(stringMessage, locale));
 
             return messages;
         } catch (Exception e) {
@@ -70,9 +72,9 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 log.info("Attachment with name {} discovered", attachmentName);
 
                 if (contentType.getPrimaryType().equalsIgnoreCase("image")) {
-                    buildTgSendPhoto(bodyPart, attachmentName);
+                    buildTgSendPhoto(bodyPart, attachmentName, locale);
                 } else {
-                    buildTgSendDocument(bodyPart, attachmentName);
+                    buildTgSendDocument(bodyPart, attachmentName, locale);
                 }
             }
 
@@ -107,9 +109,9 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         return String.format("\t\t%s [%s]", attachmentFileName, attachmentSize);
     }
 
-    private SendMessage buildTgSendMessage(String stringMessage) {
+    private SendMessage buildTgSendMessage(String stringMessage, Locale locale) {
         String tags = hashTags + " #message";
-        String info = buildMessageInfo();
+        String info = buildMessageInfo(locale);
         String text = info + "\n" +
                 divider(ctx) +
                 "\n" + tgEscape(ctx.getTelegramMessageParseMode(), stringMessage) +
@@ -133,8 +135,8 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         );
     }
 
-    private void buildTgSendPhoto(BodyPart bodyPart, String name) throws IOException, MessagingException {
-        String info = buildMessageInfo();
+    private void buildTgSendPhoto(BodyPart bodyPart, String name, Locale locale) throws IOException, MessagingException {
+        String info = buildMessageInfo(locale);
         String tags = hashTags + " " + "#attachment #photo";
         String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
@@ -155,8 +157,8 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         messages.add(sendPhotoMessage);
     }
 
-    private void buildTgSendDocument(BodyPart bodyPart, String name) throws MessagingException, IOException {
-        String info = buildMessageInfo();
+    private void buildTgSendDocument(BodyPart bodyPart, String name, Locale locale) throws MessagingException, IOException {
+        String info = buildMessageInfo(locale);
         String tags = hashTags + " " + "#attachment #document";
         String caption = info + "\n" + divider(ctx) + "\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
@@ -178,12 +180,12 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         messages.add(sendDocumentMessage);
     }
 
-    private String buildMessageInfo() {
+    private String buildMessageInfo(Locale locale) {
         return String.format("""
                         *from*: _%s_
                         *date*: _%s_
                         """, tgEscape(ctx.getTelegramMessageParseMode(), ctx.getFromAsString()),
-                DateTimeUtils.formatDate(ctx.getSentDate(), DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME)
+                DateTimeUtils.formatDate(ctx.getSentDate(), locale, DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME)
         );
     }
 

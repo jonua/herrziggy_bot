@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.Locale;
 
 import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 
@@ -16,6 +18,8 @@ import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 @Service
 @RequiredArgsConstructor
 public class CalendarService {
+    @Value("${bot.locale}")
+    private Locale locale;
     private final GoogleCalendarApi googleCalendarApi;
 
     public CalendarEventsDto getCalendarEvents(CalendarPeriod calendarPeriod, String calendarId) {
@@ -29,8 +33,8 @@ public class CalendarService {
         ZonedDateTime now = ZonedDateTime.now();
         Pair<ZonedDateTime, ZonedDateTime> periodDates = getPeriod(calendarPeriod, now);
 
-        String timeMin = formatDate(periodDates.getFirst(), FORMAT_FULL);
-        String timeMax = formatDate(periodDates.getSecond(), FORMAT_FULL);
+        String timeMin = formatDate(periodDates.getFirst(), locale, FORMAT_FULL);
+        String timeMax = formatDate(periodDates.getSecond(), locale, FORMAT_FULL);
 
         return googleCalendarApi.searchEvents(calendarId, timeMin, timeMax, q);
     }
