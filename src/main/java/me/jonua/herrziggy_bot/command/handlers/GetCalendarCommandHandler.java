@@ -52,7 +52,7 @@ public class GetCalendarCommandHandler implements CommandHandler {
             sendCalendarTo(calendar.getGoogleCalendarId(), tgUserId, command);
         }, () -> {
             log.warn("No calendar found for user:{}", tgUserId);
-            commandHandlerService.handleCommand(BotCommand.RECONFIGURE_CALENDAR, from, update);
+            commandHandlerService.handleCommand(BotCommand.SETUP_USER_CALENDAR, from, update);
         });
     }
 

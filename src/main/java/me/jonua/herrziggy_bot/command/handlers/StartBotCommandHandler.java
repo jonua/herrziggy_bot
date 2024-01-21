@@ -13,7 +13,7 @@ public class StartBotCommandHandler implements CommandHandler {
 
     @Override
     public void handleCommand(BotCommand command, User from, Update update) {
-        commandHandlerService.handleCommand(BotCommand.RECONFIGURE_CALENDAR, from, update);
+        commandHandlerService.handleCommand(BotCommand.SETUP_USER_CALENDAR, from, update);
     }
 
     @Override
