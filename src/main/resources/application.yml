@@ -7,8 +7,8 @@ bot:
   poll_new_mails: false
   feedback:
     sent-to-user-id: "-"
-    thanks-for-feedback-message: Thanks for you feedback!
-    give-feedback-message: Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены
+    thanks-for-feedback-message: "Thanks for you feedback!"
+    give-feedback-message: "Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены"
   bot-common-info-message: "Please, use the Menu button in our conversation. Next commands are supported:"
   calendar:
     select-your-calendar-message: Выбери календарь

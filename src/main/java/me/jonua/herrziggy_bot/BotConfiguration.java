@@ -69,4 +69,9 @@ public class BotConfiguration {
                 .commands(botCommands)
                 .scope(BotCommandScopeAllPrivateChats.builder().build()).build());
     }
+
+    @Bean
+    public MessageSender messageSender(HerrZiggyBot bot) {
+        return new MessageSender(bot);
+    }
 }
