@@ -29,7 +29,7 @@ public class ReceiveNewCalendarConfigUserFlow implements UserFlow {
 
         String callbackData = update.getCallbackQuery().getData();
         String[] config = callbackData.split(":");
-        String newCalendarUuid = config[1];
+        String newCalendarUuid = config[2];
         storageService.findCalendarByUuid(newCalendarUuid)
                 .ifPresentOrElse(calendar -> reassignCalendar(update, calendar), () -> {
                     log.error("No calendars found by uuid {}", newCalendarUuid);

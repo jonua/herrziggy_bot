@@ -7,7 +7,10 @@ import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +22,14 @@ public class DefaultUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        SendMessage message = new SendMessage(
-                botAdminUserId,
-                "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + update.getMessage().getText()
-        );
-        messageSender.sendSilently(message);
+        Optional.of(update).map(Update::getMessage).map(Message::getFrom)
+                .ifPresent(from -> {
+                    SendMessage message = new SendMessage(
+                            botAdminUserId,
+                            "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + update.getMessage().getText()
+                    );
+                    messageSender.sendSilently(message);
+                });
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.handlers.CommandHandlerService;
 import me.jonua.herrziggy_bot.flow.MessageHandlerService;
+import me.jonua.herrziggy_bot.flow.UserFlowService;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -18,6 +19,7 @@ public class TgUpdateHandler {
     private final MessageHandlerService messageHandler;
     private final StorageService storage;
     private final CommandHandlerService commandHandlerService;
+    private final UserFlowService userFlowService;
 
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
@@ -40,7 +42,9 @@ public class TgUpdateHandler {
         } else if (update.hasCallbackQuery()) {
             storage.upsertSourceUser(update.getCallbackQuery().getFrom());
             storage.upsertSourceChat(update.getCallbackQuery().getMessage().getChat());
-            messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
+            if (!userFlowService.callFlow(update)) {
+                messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
+            }
         } else {
             log.error("Unhandled update: {}", update);
         }

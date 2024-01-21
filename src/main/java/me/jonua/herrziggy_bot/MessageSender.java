@@ -55,7 +55,7 @@ public class MessageSender {
     }
 
     public <T extends Serializable> void send(BotApiMethod<T> message) throws TelegramApiException {
-        bot.executeAsync(message);
+        bot.execute(message);
     }
 
     public void send(SendDocument message) throws TelegramApiException  {

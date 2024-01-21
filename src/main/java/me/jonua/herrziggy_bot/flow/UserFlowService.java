@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -37,5 +36,24 @@ public class UserFlowService {
                 .filter(flow -> flow.isSupport(userFlowType))
                 .findAny()
                 .orElseGet(() -> emptyFlow);
+    }
+
+    public boolean callFlow(Update update) {
+        if (update.hasCallbackQuery()) {
+            String callbackData = update.getCallbackQuery().getData();
+            String[] parts = callbackData.split(":");
+            if (parts[0].equalsIgnoreCase("cf") && parts[1].equalsIgnoreCase("calendar")) {
+                perform(UserFlowType.RECEIVE_NEW_CALENDAR_CONFIG, update.getCallbackQuery().getFrom(), update);
+                return true;
+            }
+        }
+
+        if (log.isTraceEnabled()) {
+            log.debug("Not a callflow update:{}", update);
+        } else {
+            log.debug("Not a callflow update");
+        }
+
+        return false;
     }
 }

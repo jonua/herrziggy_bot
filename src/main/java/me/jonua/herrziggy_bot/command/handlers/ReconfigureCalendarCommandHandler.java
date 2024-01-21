@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
-import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import me.jonua.herrziggy_bot.flow.MessageHandlerService;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.StorageService;
@@ -58,7 +57,6 @@ public class ReconfigureCalendarCommandHandler implements CommandHandler {
 
         try {
             messageSender.send(tgMessage);
-            messageHandlerService.waitUserFlow(update.getMessage().getFrom(), UserFlowType.RECEIVE_NEW_CALENDAR_CONFIG);
         } catch (TelegramApiException e) {
             log.error("Unable to send request to reconfigure a calendar: {}", e.getMessage(), e);
             messageHandlerService.stopWaiting(update.getMessage().getFrom().getId());
@@ -66,7 +64,10 @@ public class ReconfigureCalendarCommandHandler implements CommandHandler {
     }
 
     private InlineKeyboardButton buildCalendarButton(Calendar calendar) {
-        return InlineKeyboardButton.builder().callbackData("calendar:" + calendar.getUuid()).text(buildCalendarName(calendar)).build();
+        return InlineKeyboardButton.builder()
+                .callbackData("cf:calendar:" + calendar.getUuid())
+                .text(buildCalendarName(calendar))
+                .build();
     }
 
     private String buildCalendarName(Calendar calendar) {

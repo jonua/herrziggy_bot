@@ -22,7 +22,7 @@ public class ScheduledGroupNotifier {
     @Scheduled(cron = "0 0 7 * * 1") // every monday at 7 o'clock by UTC
     private void notifyAlAboutCalendarEvents() {
         log.info("Notifying group {} about next week events...", groupId);
-        storageService.findCalendarByUser(groupId)
+        storageService.findCalendarByGroup(groupId)
                 .ifPresent(calendar -> calendarCommandHandler.sendCalendar(calendar.getGoogleCalendarId(), groupId, BotCommand.THIS_WEEK));
     }
 }

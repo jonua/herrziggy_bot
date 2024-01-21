@@ -78,6 +78,11 @@ public class StorageService {
     }
 
     @Transactional
+    public Optional<TgUser> findUserByTgId(Long tgUserId) {
+        return tgUserRepository.findByUserId(String.valueOf(tgUserId));
+    }
+
+    @Transactional
     public Optional<Calendar> findCalendarByUser(String tgUserId) {
         return calendarRepository.findByUserId(tgUserId);
     }
@@ -100,12 +105,12 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<TgUser> findUserByTgId(Long tgUserId) {
-        return tgUserRepository.findByUserId(String.valueOf(tgUserId));
+    public List<Calendar> getCalendars(Sort sort) {
+        return calendarRepository.findAll(sort);
     }
 
     @Transactional
-    public List<Calendar> getCalendars(Sort sort) {
-        return calendarRepository.findAll(sort);
+    public Optional<Calendar> findCalendarByGroup(String groupId) {
+        return calendarRepository.findBySourceId(groupId);
     }
 }
