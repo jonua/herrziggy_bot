@@ -23,7 +23,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +62,6 @@ public class GetCalendarCommandHandler implements CommandHandler {
     }
 
     private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command) {
-        ZonedDateTime now = ZonedDateTime.now();
         switch (command) {
             case TWO_DAYS -> {
                 CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.TWO_DAYS, calendarId);
