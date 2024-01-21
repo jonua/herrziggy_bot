@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface TgSourceRepository extends BaseRepository<TgSource> {
-    @Query("SELECT s FROM TgSource s WHERE s.type = 'private' AND s.sourceId = :sourceId")
-    Optional<TgSource> findPrivateBySourceId(String sourceId);
+    @Query("SELECT s FROM TgSource s WHERE s.sourceId = :sourceId")
+    Optional<TgSource> findBySourceId(String sourceId);
 }

@@ -25,7 +25,7 @@ public class StorageService {
 
     @Transactional
     public void upsertSource(User source) {
-        Optional<TgSource> foundSource = findSourceBySourceId(source.getId());
+        Optional<TgSource> foundSource = findBySourceId(source.getId());
         if (foundSource.isEmpty()) {
             TgSource newUser = new TgSource();
             patchSource(newUser, source);
@@ -37,7 +37,7 @@ public class StorageService {
 
     @Transactional
     public void upsertSource(Chat source) {
-        Optional<TgSource> foundGroup = tgSourceRepository.findPrivateBySourceId(String.valueOf(source.getId()));
+        Optional<TgSource> foundGroup = tgSourceRepository.findBySourceId(String.valueOf(source.getId()));
         if (foundGroup.isEmpty()) {
             TgSource newUser = new TgSource();
             patchSource(newUser, source);
@@ -77,8 +77,8 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<TgSource> findSourceBySourceId(Long tgUserId) {
-        return tgSourceRepository.findPrivateBySourceId(String.valueOf(tgUserId));
+    public Optional<TgSource> findBySourceId(Long tgUserId) {
+        return tgSourceRepository.findBySourceId(String.valueOf(tgUserId));
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class StorageService {
     public void assignCalendar(Long tgUserId, String calendarUuid) {
         findCalendarByUuid(calendarUuid)
                 .ifPresent(calendar -> {
-                    findSourceBySourceId(tgUserId).ifPresent(source -> {
+                    findBySourceId(tgUserId).ifPresent(source -> {
                         source.setCalendar(calendar);
                         tgSourceRepository.save(source);
                         log.info("Calendar updated for source:{}. New calendar is {}", tgUserId, calendar.getUuid());
