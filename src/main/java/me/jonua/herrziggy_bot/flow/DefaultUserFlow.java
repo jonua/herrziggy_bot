@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Optional;
 
@@ -18,18 +19,30 @@ public class DefaultUserFlow implements UserFlow {
     @Value("${bot.feedback.sent-to-user-id}")
     private String botAdminUserId;
 
+    @Value("${bot.bot-common-info-message}")
+    private String botCommonInfoMessage;
+
     private final MessageSender messageSender;
 
     @Override
     public void perform(Update update) {
         Optional.of(update).map(Update::getMessage).map(Message::getFrom)
                 .ifPresent(from -> {
-                    SendMessage message = new SendMessage(
-                            botAdminUserId,
-                            "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + update.getMessage().getText()
-                    );
-                    messageSender.sendSilently(message);
+                    forwardMessageToBotAdmin(update);
+                    respondWithIntoToUser(from);
                 });
+    }
+
+    private void respondWithIntoToUser(User from) {
+        messageSender.send(botCommonInfoMessage, from.getId());
+    }
+
+    private void forwardMessageToBotAdmin(Update update) {
+        SendMessage message = new SendMessage(
+                botAdminUserId,
+                "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + update.getMessage().getText()
+        );
+        messageSender.sendSilently(message);
     }
 
     @Override
