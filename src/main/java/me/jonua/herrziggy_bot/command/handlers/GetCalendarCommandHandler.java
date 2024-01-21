@@ -34,7 +34,7 @@ import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CalendarCommandHandler implements CommandHandler {
+public class GetCalendarCommandHandler implements CommandHandler {
     @Value("${default-zone-id}")
     private ZoneId zoneId;
 

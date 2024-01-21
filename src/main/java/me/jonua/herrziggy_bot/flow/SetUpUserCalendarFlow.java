@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ReceiveNewCalendarConfigUserFlow implements UserFlow {
+public class SetUpUserCalendarFlow implements UserFlow {
     @Value("${bot.calendar.reconfigured-message}")
     private String calendarReconfiguredMessage;
     private final StorageService storageService;

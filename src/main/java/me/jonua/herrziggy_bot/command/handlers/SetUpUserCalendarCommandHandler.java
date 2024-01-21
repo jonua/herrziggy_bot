@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ReconfigureCalendarCommandHandler implements CommandHandler {
+public class SetUpUserCalendarCommandHandler implements CommandHandler {
     @Value("${bot.calendar.select-your-calendar-message}")
     private String selectYourCalendarMessage;
     private final MessageSender messageSender;
