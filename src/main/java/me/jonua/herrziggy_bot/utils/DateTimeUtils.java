@@ -38,4 +38,10 @@ public final class DateTimeUtils {
         instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 23, 59, 59);
         return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("UTC"));
     }
+
+    public static ZonedDateTime getStartOfDay(ZonedDateTime zdt) {
+        Calendar instance = Calendar.getInstance();
+        instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 0, 0, 0);
+        return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("UTC"));
+    }
 }

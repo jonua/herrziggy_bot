@@ -10,7 +10,6 @@ import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.StorageService;
-import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 
 @Slf4j
 @Service
@@ -62,28 +63,28 @@ public class CalendarCommandHandler implements CommandHandler {
         ZonedDateTime now = ZonedDateTime.now();
         switch (command) {
             case TWO_DAYS -> {
-                String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
-                String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfNextDay(now), DateTimeUtils.FORMAT_FULL);
+                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
+                String timeMax = formatDate(getEndOfNextDay(now), FORMAT_FULL);
                 respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case THIS_WEEK -> {
-                String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
-                String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now), DateTimeUtils.FORMAT_FULL);
+                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
+                String timeMax = formatDate(getLastDateTimeOfWeek(now), FORMAT_FULL);
                 respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case NEXT_WEEK -> {
-                String timeMin = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now), DateTimeUtils.FORMAT_FULL);
-                String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getLastDateTimeOfWeek(now).plusWeeks(1), DateTimeUtils.FORMAT_FULL);
+                String timeMin = formatDate(getLastDateTimeOfWeek(now), FORMAT_FULL);
+                String timeMax = formatDate(getLastDateTimeOfWeek(now).plusWeeks(1), FORMAT_FULL);
                 respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
             }
             case CURRENT_30_DAYS_SEMINARS -> {
-                String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
-                String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfDay(now.plusDays(60)), DateTimeUtils.FORMAT_FULL);
+                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
+                String timeMax = formatDate(getEndOfDay(now.plusDays(60)), FORMAT_FULL);
                 respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "семинар");
             }
             case CURRENT_30_DAYS_TESTS -> {
-                String timeMin = DateTimeUtils.formatDate(now, DateTimeUtils.FORMAT_FULL);
-                String timeMax = DateTimeUtils.formatDate(DateTimeUtils.getEndOfDay(now.plusDays(60)), DateTimeUtils.FORMAT_FULL);
+                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
+                String timeMax = formatDate(getEndOfDay(now.plusDays(60)), FORMAT_FULL);
                 respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "зачет");
             }
             default -> {
@@ -102,9 +103,9 @@ public class CalendarCommandHandler implements CommandHandler {
 
         for (CalendarEventItemDto item : events.getItems()) {
             String line = String.format("__%s__ _%s\\-%s_: *%s*",
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, DateTimeUtils.formatDate(item.getStart().getDateTime(), zoneId, DateTimeUtils.FORMAT_SHORT_DATE_WITH_DAY_NAME)),
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, DateTimeUtils.formatDate(item.getStart().getDateTime(), zoneId, DateTimeUtils.FORMAT_SHORT_TIME)),
-                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, DateTimeUtils.formatDate(item.getEnd().getDateTime(), zoneId, DateTimeUtils.FORMAT_SHORT_TIME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, FORMAT_SHORT_DATE_WITH_DAY_NAME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, FORMAT_SHORT_TIME)),
+                    TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getEnd().getDateTime(), zoneId, FORMAT_SHORT_TIME)),
                     TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, item.getSummary())
             );
             eventList.add(line);
