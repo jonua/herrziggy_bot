@@ -68,6 +68,8 @@ public class StorageService {
         entity.setLastName(tgGroup.getLastName());
         entity.setUsername(tgGroup.getUserName());
         entity.setTitle(tgGroup.getTitle());
+        entity.setIsBot(false);
+        entity.setIsPremium(false);
 
         entity.setUpdateDate(new Date());
 
