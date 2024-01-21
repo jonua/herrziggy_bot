@@ -3,7 +3,6 @@ package me.jonua.herrziggy_bot.command.handlers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
-import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
@@ -37,7 +36,6 @@ public class GetCalendarCommandHandler implements CommandHandler {
     @Value("${default-zone-id}")
     private ZoneId zoneId;
 
-    private final GoogleCalendarApi googleCalendarApi;
     private final MessageSender messageSender;
     private final StorageService storageService;
     private final CommandHandlerService commandHandlerService;
