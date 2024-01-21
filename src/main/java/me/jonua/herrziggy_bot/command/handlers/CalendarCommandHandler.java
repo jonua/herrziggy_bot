@@ -8,7 +8,9 @@ import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
+import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
 import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.service.CalendarService;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +42,7 @@ public class CalendarCommandHandler implements CommandHandler {
     private final MessageSender messageSender;
     private final StorageService storageService;
     private final CommandHandlerService commandHandlerService;
+    private final CalendarService calendarService;
 
     @Override
     public void handleCommand(BotCommand command, User from, Update update) {
@@ -63,30 +66,26 @@ public class CalendarCommandHandler implements CommandHandler {
         ZonedDateTime now = ZonedDateTime.now();
         switch (command) {
             case TWO_DAYS -> {
-                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
-                String timeMax = formatDate(getEndOfNextDay(now), FORMAT_FULL);
-                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.TWO_DAYS, calendarId);
+                respondWithCalendarData(tgUserId, command, events);
             }
             case THIS_WEEK -> {
-                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
-                String timeMax = formatDate(getLastDateTimeOfWeek(now), FORMAT_FULL);
-                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.THIS_WEEK, calendarId);
+                respondWithCalendarData(tgUserId, command, events);
             }
             case NEXT_WEEK -> {
-                String timeMin = formatDate(getLastDateTimeOfWeek(now), FORMAT_FULL);
-                String timeMax = formatDate(getLastDateTimeOfWeek(now).plusWeeks(1), FORMAT_FULL);
-                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, null);
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.NEXT_WEEK, calendarId);
+                respondWithCalendarData(tgUserId, command, events);
             }
             case CURRENT_30_DAYS_SEMINARS -> {
-                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
-                String timeMax = formatDate(getEndOfDay(now.plusDays(60)), FORMAT_FULL);
-                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "семинар");
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_SEMINARS, calendarId, "семиран");
+                respondWithCalendarData(tgUserId, command, events);
             }
             case CURRENT_30_DAYS_TESTS -> {
-                String timeMin = formatDate(getStartOfDay(now), FORMAT_FULL);
-                String timeMax = formatDate(getEndOfDay(now.plusDays(60)), FORMAT_FULL);
-                respondWithCalendarData(calendarId, tgUserId, command, timeMin, timeMax, "зачет");
+                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_TESTS, calendarId, "зачет");
+                respondWithCalendarData(tgUserId, command, events);
             }
+
             default -> {
                 log.error("Unsupported calendar command: {}", command.getCommand());
                 throw new RuntimeException("Unsupported command: " + command.getCommand());
@@ -94,11 +93,7 @@ public class CalendarCommandHandler implements CommandHandler {
         }
     }
 
-    private void respondWithCalendarData(String calendarId, String tgUserId, BotCommand command, String timeMin, String timeMax, String q) {
-        log.trace("Command will be executed on a calendar: {} with start date:{}, end date:{} and query:{}",
-                command.getCommand(), timeMin, timeMax, q);
-
-        CalendarEventsDto events = googleCalendarApi.searchEvents(calendarId, timeMin, timeMax, q);
+    private void respondWithCalendarData(String tgUserId, BotCommand command, CalendarEventsDto events) {
         List<String> eventList = new ArrayList<>();
 
         for (CalendarEventItemDto item : events.getItems()) {
