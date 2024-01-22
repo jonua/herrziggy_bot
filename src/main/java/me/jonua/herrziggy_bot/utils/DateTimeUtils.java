@@ -23,9 +23,14 @@ public final class DateTimeUtils {
 
     public static ZonedDateTime getLastDateTimeOfWeek(ZonedDateTime zdt) {
         Calendar instance = Calendar.getInstance();
+        instance.setFirstDayOfWeek(Calendar.MONDAY);
         instance.set(zdt.getYear(), zdt.getMonthValue() - 1, zdt.getDayOfMonth(), 23, 59, 59);
-        instance.set(Calendar.DAY_OF_WEEK, Calendar.getInstance().getFirstDayOfWeek() + 7);
+        instance.set(Calendar.DAY_OF_WEEK,  Calendar.SUNDAY);
         return ZonedDateTime.ofInstant(instance.toInstant(), ZoneId.of("Europe/Moscow"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateTimeUtils.getLastDateTimeOfWeek(ZonedDateTime.now()));
     }
 
     public static ZonedDateTime getEndOfNextDay(ZonedDateTime zdt) {

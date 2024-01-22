@@ -19,7 +19,7 @@ public class ScheduledGroupNotifier {
     private final GetCalendarCommandHandler calendarCommandHandler;
     private final StorageService storageService;
 
-    @Scheduled(cron = "0 0 7 * * 1") // every monday at 7 o'clock by UTC
+    @Scheduled(cron = "0 0 10 * * 1") // every monday at 7 o'clock by UTC
     private void notifyAlAboutCalendarEvents() {
         log.info("Notifying group {} about next week events...", sourceId);
         storageService.findCalendarByGroup(sourceId)
