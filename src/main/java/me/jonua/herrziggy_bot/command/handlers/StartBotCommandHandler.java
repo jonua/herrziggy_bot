@@ -6,13 +6,15 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
-public class StartBotCommandHandler implements CommandHandler {
+public class StartBotCommandHandler extends BaseCommandHandler {
     private final CommandHandlerService commandHandlerService;
 
     @Override
-    public void handleCommand(BotCommand command, User from, Update update) {
+    public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
         commandHandlerService.handleCommand(BotCommand.SETUP_USER_CALENDAR, from, update);
     }
 

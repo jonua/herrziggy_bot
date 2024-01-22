@@ -10,6 +10,7 @@ bot:
     sent-to-user-id: "-"
     thanks-for-feedback-message: "Thanks for you feedback!"
     give-feedback-message: "Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены"
+    no-calendar-events-found: Не найдено событий в календаре на этот период
   bot-common-info-message: "Please, use the Menu button in our conversation. Next commands are supported:"
   calendar:
     select-your-calendar-message: Выбери календарь

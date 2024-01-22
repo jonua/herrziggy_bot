@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Map;
+
 @Slf4j
 @Service
-public class EmptyCommandHandler implements CommandHandler {
+public class EmptyCommandHandler extends BaseCommandHandler {
     @Override
-    public void handleCommand(BotCommand command, User from, Update update) {
+    public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
         log.warn("Unhandled command:{} for message {}", command, update);
     }
 

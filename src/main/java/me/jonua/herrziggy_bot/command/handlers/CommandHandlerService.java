@@ -14,12 +14,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Lazy))
 public class CommandHandlerService {
-    private final List<CommandHandler> commandHandlers;
+    private final List<BaseCommandHandler> commandHandlers;
 
     private final EmptyCommandHandler emptyCommandHandler;
 
     public void handleCommand(BotCommand command, User from, Update update) {
-        CommandHandler handler = findHandler(command);
+        BaseCommandHandler handler = findHandler(command);
         if (log.isTraceEnabled()) {
             log.trace("Command:{} will be handled by:{} for sender:{}. Message {}",
                     command, handler.getClass(), update.getMessage().getFrom().getId(), update);
@@ -31,7 +31,7 @@ public class CommandHandlerService {
         handler.handleCommand(command, from, update);
     }
 
-    private CommandHandler findHandler(BotCommand command) {
+    private BaseCommandHandler findHandler(BotCommand command) {
         return commandHandlers.stream()
                 .filter(handler -> !handler.getClass().isAssignableFrom(emptyCommandHandler.getClass()))
                 .filter(handler -> handler.isSupport(command))

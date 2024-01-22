@@ -9,13 +9,15 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CancelFeedbackCommandHandler implements CommandHandler {
+public class CancelFeedbackCommandHandler extends BaseCommandHandler {
     private final MessageHandlerService messageHandler;
 
-    public void handleCommand(BotCommand command, User from, Update update) {
+    public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
         log.trace("User {} cancelled feedback", update.getMessage().getFrom());
         messageHandler.stopWaiting(update.getMessage().getFrom().getId());
     }

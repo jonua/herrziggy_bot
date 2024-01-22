@@ -21,11 +21,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SetUpUserCalendarCommandHandler implements CommandHandler {
+public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
     @Value("${bot.calendar.select-your-calendar-message}")
     private String selectYourCalendarMessage;
     private final MessageSender messageSender;
@@ -33,7 +34,7 @@ public class SetUpUserCalendarCommandHandler implements CommandHandler {
     private final StorageService storageService;
 
     @Override
-    public void handleCommand(BotCommand command, User from, Update update) {
+    public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
         List<List<InlineKeyboardButton>> buttons = buildButtons();
 
         InlineKeyboardMarkup keyboard = InlineKeyboardMarkup.builder()

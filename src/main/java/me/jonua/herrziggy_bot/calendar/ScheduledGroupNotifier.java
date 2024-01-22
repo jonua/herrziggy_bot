@@ -23,6 +23,7 @@ public class ScheduledGroupNotifier {
     private void notifyAlAboutCalendarEvents() {
         log.info("Notifying group {} about next week events...", sourceId);
         storageService.findCalendarByGroup(sourceId)
-                .ifPresent(calendar -> calendarCommandHandler.sendCalendar(calendar.getGoogleCalendarId(), sourceId, BotCommand.THIS_WEEK));
+                .ifPresent(calendar -> calendarCommandHandler
+                        .sendCalendar(calendar.getGoogleCalendarId(), sourceId, BotCommand.THIS_WEEK, false));
     }
 }
