@@ -117,7 +117,7 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
                 "\n" + tgEscape(ctx.getTelegramMessageParseMode(), stringMessage) +
                 "\n\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
-        text = "*New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(),"\n") + text;
+        text = "*New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(), "\n") + text;
         text = reduceMessageIfNeeds(ctx.getTelegramMessageParseMode(), text);
 
         return new SendMessage(
@@ -181,11 +181,13 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     }
 
     private String buildMessageInfo(Locale locale) {
-        return String.format("""
+        return String.format(
+                """
                         *from*: _%s_
                         *date*: _%s_
-                        """, tgEscape(ctx.getTelegramMessageParseMode(), ctx.getFromAsString()),
-                DateTimeUtils.formatDate(ctx.getSentDate(), locale, DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME)
+                        """,
+                tgEscape(ctx.getTelegramMessageParseMode(), ctx.getFromAsString()),
+                tgEscape(ctx.getTelegramMessageParseMode(), DateTimeUtils.formatDate(ctx.getSentDate(), locale, DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME))
         );
     }
 

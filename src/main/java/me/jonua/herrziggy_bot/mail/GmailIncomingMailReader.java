@@ -4,31 +4,30 @@ import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(value = "bot.poll_new_mails", havingValue = "true")
 public class GmailIncomingMailReader {
     private final TelegramGroupNotifier messageNotifier;
-    private final MainConfiguration mailConfiguration;
+    private final MailTgGroupNotifierConfiguration.Notifier notifierConfig;
+    private final String groupId;
+    private final ZoneId zoneId;
 
     public void startListening() {
         Properties properties = new Properties();
         properties.putAll(Map.of(
-                "mail.debug", Boolean.valueOf(mailConfiguration.isDebug()).toString(),
-                "mail.store.protocol", mailConfiguration.getStoreProtocol(),
-                "mail.imaps.host", mailConfiguration.getImaps().getHost(),
-                "mail.imaps.port", mailConfiguration.getImaps().getPort(),
-                "mail.imaps.timeout", mailConfiguration.getImaps().getTimeout(),
+                "mail.debug", Boolean.valueOf(notifierConfig.isDebug()).toString(),
+                "mail.store.protocol", notifierConfig.getStoreProtocol(),
+                "mail.imaps.host", notifierConfig.getImaps().getHost(),
+                "mail.imaps.port", notifierConfig.getImaps().getPort(),
+                "mail.imaps.timeout", notifierConfig.getImaps().getTimeout(),
                 "mail.imap.partialfetch", "false",
                 "mail.smtp.ssl.trust", "smtp.gmail.com",
                 "mail.smtp.ssl.protocols", "SSLv3",
@@ -43,16 +42,16 @@ public class GmailIncomingMailReader {
 
         try {
             store = (IMAPStore) session.getStore("imaps");
-            store.connect(mailConfiguration.getUsername(), mailConfiguration.getPassword());
+            store.connect(notifierConfig.getUsername(), notifierConfig.getPassword());
 
             if (!store.hasCapability("IDLE")) {
                 throw new RuntimeException("IDLE not supported");
             }
 
             inbox = store.getFolder("INBOX");
-            inbox.addMessageCountListener(messageCountListener(messageNotifier));
+            inbox.addMessageCountListener(messageCountListener(messageNotifier, groupId, zoneId));
 
-            IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
+            IdleThread idleThread = new IdleThread(inbox, notifierConfig.getUsername(), notifierConfig.getPassword());
             idleThread.setDaemon(false);
             idleThread.start();
 
@@ -68,13 +67,13 @@ public class GmailIncomingMailReader {
         }
     }
 
-    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier) {
+    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, String groupId, ZoneId zoneId) {
         return new MessageCountAdapter() {
             @Override
             public void messagesAdded(MessageCountEvent event) {
                 for (Message message : event.getMessages()) {
                     try {
-                        messageNotifier.notifySubscribers(message);
+                        messageNotifier.notifySubscribers(groupId, zoneId, message);
                     } catch (Exception e) {
                         log.error("MessageCountAdapter error: {}", e.getMessage(), e);
                     }

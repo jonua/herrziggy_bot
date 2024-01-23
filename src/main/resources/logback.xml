@@ -2,19 +2,9 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProperty scope="context" name="logzioToken" source="logzio.token"/>
-    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
-    <springProperty scope="context" name="envName" source="environment.name"/>
-
-    <!-- Example for logging into the build folder of your project -->
-    <property name="LOG_FILE" value="log/${springAppName}"/>
-
     <!-- You can override this to have a custom pattern -->
-    <property name="CONSOLE_LOG_PATTERN_CLOUD"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan}:%line %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
-
     <property name="CONSOLE_LOG_PATTERN"
-              value="%clr(%d{HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(%-40.40logger){cyan}:%line %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan}:%line %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
     <!-- Appender to log to console -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -32,8 +22,21 @@
         </encoder>
     </appender>
 
+    <appender name="file-mailing" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_FOLDER}/mailing-logs.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35}:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="root" additivity="false">
         <appender-ref ref="console" />
         <appender-ref ref="file" />
+    </logger>
+
+    <logger name="me.jonua.herrziggy_bot.mail" additivity="false">
+        <appender-ref ref="console" />
+        <appender-ref ref="file-mailing" />
     </logger>
 </configuration>

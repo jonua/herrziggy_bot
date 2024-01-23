@@ -21,17 +21,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TelegramGroupNotifier {
-    @Value("${bot.chat-id}")
-    private String chatId;
-    @Value("${default-zone-id}")
-    private ZoneId zoneId;
     @Value("${bot.max-allowed-entity-size-bytes}")
     private Integer attachmentSizeThresholdBytes;
 
     private final TelegramMessageBuilderService telegramMessageBuilder;
     private final MessageSender messageSender;
 
-    public void notifySubscribers(Message mailMessage) throws MessagingException {
+    public void notifySubscribers(String chatId, ZoneId zoneId, Message mailMessage) throws MessagingException {
         MailNotificationContext ctx = MailNotificationContext.fromMessage(mailMessage, zoneId);
         ctx.setTelegramChatId(chatId);
         ctx.setZoneId(zoneId);
