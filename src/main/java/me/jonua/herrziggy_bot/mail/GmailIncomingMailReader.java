@@ -16,18 +16,16 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class GmailIncomingMailReader {
     private final TelegramGroupNotifier messageNotifier;
-    private final MailTgGroupNotifierConfiguration.Notifier notifierConfig;
-    private final String groupId;
-    private final ZoneId zoneId;
+    private final MailConfiguration mailConfiguration;
 
     public void startListening() {
         Properties properties = new Properties();
         properties.putAll(Map.of(
-                "mail.debug", Boolean.valueOf(notifierConfig.isDebug()).toString(),
-                "mail.store.protocol", notifierConfig.getStoreProtocol(),
-                "mail.imaps.host", notifierConfig.getImaps().getHost(),
-                "mail.imaps.port", notifierConfig.getImaps().getPort(),
-                "mail.imaps.timeout", notifierConfig.getImaps().getTimeout(),
+                "mail.debug", Boolean.valueOf(mailConfiguration.isDebug()).toString(),
+                "mail.store.protocol", mailConfiguration.getStoreProtocol(),
+                "mail.imaps.host", mailConfiguration.getImapsHost(),
+                "mail.imaps.port", mailConfiguration.getImapsPort(),
+                "mail.imaps.timeout", mailConfiguration.getImapsTimeout(),
                 "mail.imap.partialfetch", "false",
                 "mail.smtp.ssl.trust", "smtp.gmail.com",
                 "mail.smtp.ssl.protocols", "SSLv3",
@@ -42,16 +40,17 @@ public class GmailIncomingMailReader {
 
         try {
             store = (IMAPStore) session.getStore("imaps");
-            store.connect(notifierConfig.getUsername(), notifierConfig.getPassword());
+            store.connect(mailConfiguration.getUsername(), mailConfiguration.getPassword());
 
             if (!store.hasCapability("IDLE")) {
                 throw new RuntimeException("IDLE not supported");
             }
 
             inbox = store.getFolder("INBOX");
-            inbox.addMessageCountListener(messageCountListener(messageNotifier, groupId, zoneId));
+            inbox.addMessageCountListener(messageCountListener(messageNotifier,
+                    mailConfiguration.getForwardToTelegramGroupId(), mailConfiguration.getZoneId()));
 
-            IdleThread idleThread = new IdleThread(inbox, notifierConfig.getUsername(), notifierConfig.getPassword());
+            IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
             idleThread.setDaemon(false);
             idleThread.start();
 

@@ -2,7 +2,6 @@ package me.jonua.herrziggy_bot.mail;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
 
 import javax.mail.Address;
 import javax.mail.Message;

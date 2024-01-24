@@ -1,24 +1,20 @@
 package me.jonua.herrziggy_bot.mail;
 
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.service.mail.MailConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import java.time.ZoneId;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
 @Configuration
 public class GmailListenerConfiguration implements ApplicationListener<ContextRefreshedEvent> {
-    @Value("${default-zone-id}")
-    private ZoneId defaultZoneId;
-
     @Autowired
-    private MailTgGroupNotifierConfiguration mailConfigurations;
+    private MailConfigurationService mailConfigurationService;
 
     @Autowired
     private TelegramGroupNotifier notifier;
@@ -27,13 +23,9 @@ public class GmailListenerConfiguration implements ApplicationListener<ContextRe
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        for (MailTgGroupNotifierConfiguration.Notifier notifier : mailConfigurations.getNotifiers()) {
-            if (!notifier.getEnabled()) {
-                log.warn("Mail notificator disabled for {}", notifier.getUsername());
-                return;
-            }
-            log.info("Mail notificator enabled for {} and will be activated now", notifier.getUsername());
-            GmailIncomingMailReader reader = new GmailIncomingMailReader(this.notifier, notifier, notifier.getTelegramGroupId(), defaultZoneId);
+        for (MailConfiguration config : mailConfigurationService.getActiveConfigurations()) {
+            log.info("Mail notificator enabled for {} and will be activated now", config.getUsername());
+            GmailIncomingMailReader reader = new GmailIncomingMailReader(this.notifier, config);
             executorService.submit(reader::startListening);
         }
     }

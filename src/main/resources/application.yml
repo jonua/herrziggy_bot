@@ -14,19 +14,6 @@ bot:
   calendar:
     select-your-calendar-message: Выбери календарь
     reconfigured-message: Все готово, теперь ты можешь получать эвенты из календаря, отправляя команды боту из меню
-  tg-group-incoming-mail-notifier:
-    notifiers:
-      -
-        enabled: false
-        username: "-"
-        password: "-"
-        debug: false
-        store_protocol: imaps
-        imaps:
-          host: "-"
-          port: 993
-          timeout: 10000
-        telegram-group-id: "-"
 google-cloud:
   calendar:
     api:
