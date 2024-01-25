@@ -53,6 +53,16 @@ spring:
   config:
     activate:
       on-profile:
+        - app-info
+logging:
+  level:
+    root: warn
+    me.jonua.herrziggy_bot: info
+---
+spring:
+  config:
+    activate:
+      on-profile:
         - app-trace
 logging:
   level:
