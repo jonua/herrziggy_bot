@@ -184,9 +184,11 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
         return String.format(
                 """
                         *from*: _%s_
+                        *subject*: _%s_
                         *date*: _%s_
                         """,
                 tgEscape(ctx.getTelegramMessageParseMode(), ctx.getFromAsString()),
+                tgEscape(ctx.getTelegramMessageParseMode(), ctx.getSubject()),
                 tgEscape(ctx.getTelegramMessageParseMode(), DateTimeUtils.formatDate(ctx.getSentDate(), locale, DateTimeUtils.FORMAT_FULL_DATE_SHORT_TIME))
         );
     }

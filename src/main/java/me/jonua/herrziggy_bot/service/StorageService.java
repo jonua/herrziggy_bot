@@ -7,6 +7,7 @@ import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
 import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -78,7 +79,17 @@ public class StorageService {
 
     @Transactional
     public Optional<TgSource> findBySourceId(Long tgUserId) {
-        return tgSourceRepository.findBySourceId(String.valueOf(tgUserId));
+        String sourceIdString = Optional.ofNullable(tgUserId).map(String::valueOf).orElse(null);
+        return findBySourceId(sourceIdString);
+    }
+
+    @Transactional
+    public Optional<TgSource> findBySourceId(String tgUserId) {
+        if (StringUtils.isEmpty(tgUserId)) {
+            return Optional.empty();
+        }
+
+        return tgSourceRepository.findBySourceId(tgUserId);
     }
 
     @Transactional
@@ -111,5 +122,11 @@ public class StorageService {
     @Transactional
     public Optional<Calendar> findCalendarByGroup(String groupId) {
         return calendarRepository.findBySourceId(groupId);
+    }
+
+    @Transactional
+    public void updateMigrateToChatId(String destinationChatId, String newSourceId) {
+        log.info("Chat {} migrated to new id {}", destinationChatId, newSourceId);
+        tgSourceRepository.updateMigrateToChatId(destinationChatId, newSourceId);
     }
 }

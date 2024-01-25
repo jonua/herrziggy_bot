@@ -1,11 +1,16 @@
 package me.jonua.herrziggy_bot.mail;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import me.jonua.herrziggy_bot.model.BaseEntity;
+import me.jonua.herrziggy_bot.model.TgSource;
 
 import java.time.ZoneId;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -21,5 +26,10 @@ public class MailConfiguration extends BaseEntity {
     private Long imapsTimeout;
 
     private ZoneId zoneId;
-    private String forwardToTelegramGroupId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUse;
+
+    @ManyToOne
+    private TgSource tgSource;
 }

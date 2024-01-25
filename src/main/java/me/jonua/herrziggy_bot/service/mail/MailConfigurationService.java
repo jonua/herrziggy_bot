@@ -6,6 +6,7 @@ import me.jonua.herrziggy_bot.mail.MailConfiguration;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -16,5 +17,10 @@ public class MailConfigurationService {
     @Transactional
     public List<MailConfiguration> getActiveConfigurations() {
         return mailConfigurationRepository.findAllActive();
+    }
+
+    @Transactional
+    public void updateLastUse(String mailConfigUuid) {
+        mailConfigurationRepository.updateLastUse(mailConfigUuid, new Date());
     }
 }

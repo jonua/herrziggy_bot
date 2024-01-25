@@ -1,4 +1,4 @@
-package me.jonua.herrziggy_bot.calendar;
+package me.jonua.herrziggy_bot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ public class TgUpdateHandler {
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
 
-
         if (message != null) {
             storage.upsertSource(update.getMessage().getFrom());
             storage.upsertSource(update.getMessage().getChat());
@@ -46,6 +45,9 @@ public class TgUpdateHandler {
             if (!userFlowService.callFlow(update)) {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }
+        } else if (update.hasMyChatMember()) {
+            storage.upsertSource(update.getMyChatMember().getChat());
+            storage.upsertSource(update.getMyChatMember().getFrom());
         } else {
             log.error("Unhandled update: {}", update);
         }

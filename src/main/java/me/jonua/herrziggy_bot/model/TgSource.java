@@ -18,6 +18,7 @@ public class TgSource extends BaseEntity {
     private String title;
     private Boolean isBot = false;
     private Boolean isPremium = false;
+    private String migrateFromChatId;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Calendar calendar;

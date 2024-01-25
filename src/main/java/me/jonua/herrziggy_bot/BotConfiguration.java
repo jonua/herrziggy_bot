@@ -1,7 +1,6 @@
 package me.jonua.herrziggy_bot;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.calendar.TgUpdateHandler;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
 import org.springframework.beans.factory.annotation.Autowired;

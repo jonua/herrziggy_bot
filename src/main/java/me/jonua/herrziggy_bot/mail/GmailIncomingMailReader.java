@@ -4,11 +4,11 @@ import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.service.mail.MailConfigurationService;
 
 import javax.mail.*;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Properties;
 
@@ -17,6 +17,7 @@ import java.util.Properties;
 public class GmailIncomingMailReader {
     private final TelegramGroupNotifier messageNotifier;
     private final MailConfiguration mailConfiguration;
+    private final MailConfigurationService mailConfigurationService;
 
     public void startListening() {
         Properties properties = new Properties();
@@ -47,8 +48,7 @@ public class GmailIncomingMailReader {
             }
 
             inbox = store.getFolder("INBOX");
-            inbox.addMessageCountListener(messageCountListener(messageNotifier,
-                    mailConfiguration.getForwardToTelegramGroupId(), mailConfiguration.getZoneId()));
+            inbox.addMessageCountListener(messageCountListener(messageNotifier, mailConfiguration, mailConfigurationService));
 
             IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
             idleThread.setDaemon(false);
@@ -66,13 +66,15 @@ public class GmailIncomingMailReader {
         }
     }
 
-    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, String groupId, ZoneId zoneId) {
+    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, MailConfiguration mailConfiguration,
+                                                            MailConfigurationService mailConfigurationService) {
         return new MessageCountAdapter() {
             @Override
             public void messagesAdded(MessageCountEvent event) {
                 for (Message message : event.getMessages()) {
                     try {
-                        messageNotifier.notifySubscribers(groupId, zoneId, message);
+                        messageNotifier.notifySubscribers(mailConfiguration.getTgSource().getSourceId(), mailConfiguration.getZoneId(), message);
+                        mailConfigurationService.updateLastUse(mailConfiguration.getUuid());
                     } catch (Exception e) {
                         log.error("MessageCountAdapter error: {}", e.getMessage(), e);
                     }

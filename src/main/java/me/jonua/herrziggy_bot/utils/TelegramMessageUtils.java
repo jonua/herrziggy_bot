@@ -10,6 +10,10 @@ public final class TelegramMessageUtils {
     private static final int MAX_MESSAGE_LENGTH = 4096;
 
     public static String tgEscape(String parseMode, String text) {
+        if (StringUtils.isEmpty(text)) {
+            return text;
+        }
+
         if (!ParseMode.MARKDOWNV2.equals(parseMode) &&
                 !ParseMode.MARKDOWN.equals(parseMode)) {
             return text;

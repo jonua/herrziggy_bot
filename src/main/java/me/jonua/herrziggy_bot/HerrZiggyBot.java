@@ -1,7 +1,6 @@
 package me.jonua.herrziggy_bot;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.calendar.TgUpdateHandler;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
