@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.service.StorageService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
@@ -23,9 +22,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TelegramGroupNotifier {
-    @Value("${bot.max-allowed-entity-size-bytes}")
-    private Integer attachmentSizeThresholdBytes;
-
     private final TelegramMessageBuilderService telegramMessageBuilder;
     private final MessageSender messageSender;
     private final StorageService storageService;
@@ -36,7 +32,6 @@ public class TelegramGroupNotifier {
         MailNotificationContext ctx = MailNotificationContext.fromMessage(mailMessage, zoneId);
         ctx.setTelegramChatId(chatId);
         ctx.setZoneId(zoneId);
-        ctx.setAttachmentSizeThresholdBytes(attachmentSizeThresholdBytes);
         ctx.setTelegramMessageParseMode(ParseMode.MARKDOWNV2);
 
         List<PartialBotApiMethod<org.telegram.telegrambots.meta.api.objects.Message>> tgMessages = telegramMessageBuilder.buildFromMail(mailMessage, ctx);

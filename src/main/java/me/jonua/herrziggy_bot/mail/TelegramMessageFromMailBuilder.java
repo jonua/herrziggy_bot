@@ -67,15 +67,13 @@ class TelegramMessageFromMailBuilder extends MailMessageParser {
     @Override
     protected void onBodyPart(BodyPart bodyPart, ContentType contentType) {
         try {
-            if (bodyPart.getSize() < ctx.getAttachmentSizeThresholdBytes()) {
-                String attachmentName = Optional.of(contentType).map(ContentType::getParameterList).map(list -> list.get("name")).orElse("image");
-                log.info("Attachment with name {} discovered", attachmentName);
+            String attachmentName = Optional.of(contentType).map(ContentType::getParameterList).map(list -> list.get("name")).orElse("image");
+            log.info("Attachment with name {} discovered", attachmentName);
 
-                if (contentType.getPrimaryType().equalsIgnoreCase("image")) {
-                    buildTgSendPhoto(bodyPart, attachmentName, locale);
-                } else {
-                    buildTgSendDocument(bodyPart, attachmentName, locale);
-                }
+            if (contentType.getPrimaryType().equalsIgnoreCase("image")) {
+                buildTgSendPhoto(bodyPart, attachmentName, locale);
+            } else {
+                buildTgSendDocument(bodyPart, attachmentName, locale);
             }
 
             String text = buildAttachmentInfo(contentType, bodyPart.getSize());

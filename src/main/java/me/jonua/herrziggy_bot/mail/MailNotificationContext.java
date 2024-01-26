@@ -31,8 +31,6 @@ public class MailNotificationContext {
     private ZoneId zoneId;
 
     @Setter
-    private Integer attachmentSizeThresholdBytes;
-    @Setter
     private String telegramMessageParseMode = null;
 
     public static MailNotificationContext fromMessage(Message mailMessage, ZoneId zoneId) throws MessagingException {
