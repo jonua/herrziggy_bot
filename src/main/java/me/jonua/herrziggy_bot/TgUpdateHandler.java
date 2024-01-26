@@ -9,9 +9,11 @@ import me.jonua.herrziggy_bot.flow.UserFlowService;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -22,13 +24,27 @@ public class TgUpdateHandler {
     private final CommandHandlerService commandHandlerService;
     private final UserFlowService userFlowService;
 
+    List<Function<Update, Optional<User>>> userExtractor = List.of(
+            update -> Optional.of(update).map(Update::getMessage).map(Message::getFrom),
+            update -> Optional.of(update).map(Update::getCallbackQuery).map(CallbackQuery::getFrom),
+            update -> Optional.of(update).map(Update::getMyChatMember).map(ChatMemberUpdated::getFrom),
+            update -> Optional.of(update).map(Update::getChannelPost).map(Message::getFrom)
+    );
+
+    List<Function<Update, Optional<Chat>>> chatExtractor = List.of(
+            update -> Optional.of(update).map(Update::getMessage).map(Message::getChat),
+            update -> Optional.of(update).map(Update::getCallbackQuery).map(CallbackQuery::getMessage).map(Message::getChat),
+            update -> Optional.of(update).map(Update::getMyChatMember).map(ChatMemberUpdated::getChat),
+            update -> Optional.of(update).map(Update::getChannelPost).map(Message::getChat)
+    );
+
     public void handleUpdate(Update update) {
         Message message = update.getMessage();
 
-        if (message != null) {
-            storage.upsertSource(update.getMessage().getFrom());
-            storage.upsertSource(update.getMessage().getChat());
+        userExtractor.stream().map(f -> f.apply(update)).filter(Optional::isPresent).map(Optional::get).findFirst().ifPresent(storage::upsertSource);
+        chatExtractor.stream().map(f -> f.apply(update)).filter(Optional::isPresent).map(Optional::get).findFirst().ifPresent(storage::upsertSource);
 
+        if (message != null) {
             if (message.isCommand()) {
                 for (MessageEntity entity : message.getEntities()) {
                     if (entity.getType().equalsIgnoreCase("bot_command")) {
@@ -40,16 +56,11 @@ public class TgUpdateHandler {
                 messageHandler.handleMessage(update.getMessage().getFrom(), update);
             }
         } else if (update.hasCallbackQuery()) {
-            storage.upsertSource(update.getCallbackQuery().getFrom());
-            storage.upsertSource(update.getCallbackQuery().getMessage().getChat());
             if (!userFlowService.callFlow(update)) {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }
-        } else if (update.hasMyChatMember()) {
-            storage.upsertSource(update.getMyChatMember().getChat());
-            storage.upsertSource(update.getMyChatMember().getFrom());
         } else {
-            log.error("Unhandled update: {}", update);
+            log.warn("Unhandled update: {}", update);
         }
     }
 }
