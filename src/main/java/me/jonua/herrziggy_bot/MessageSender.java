@@ -5,13 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
+import org.telegram.telegrambots.meta.api.methods.send.*;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,17 +48,14 @@ public class MessageSender {
         }
     }
 
-    public <T extends Serializable> void send(BotApiMethod<T> message) throws TelegramApiException {
-        bot.execute(message);
+    public void sendSilently(SendMediaGroup group) {
+        try {
+            send(group);
+        } catch (TelegramApiException e) {
+            log.error("Unable to send media group: {}", e.getMessage(), e);
+        }
     }
 
-    public void send(SendDocument message) throws TelegramApiException {
-        bot.execute(message);
-    }
-
-    public void send(SendPhoto message) throws TelegramApiException {
-        bot.execute(message);
-    }
 
     public void sendSilently(SendSticker sticker) {
         try {
@@ -67,10 +63,6 @@ public class MessageSender {
         } catch (TelegramApiException e) {
             log.error("Unable to send sticker: {}", e.getMessage(), e);
         }
-    }
-
-    public void send(SendSticker sticker) throws TelegramApiException {
-        bot.execute(sticker);
     }
 
     public <T extends Serializable> void sendSilently(Long replyTo, String text) {
@@ -109,11 +101,47 @@ public class MessageSender {
         sendSilently(sendMessage);
     }
 
-    public <T extends Serializable> void sendSilently(BotApiMethod<T> message) {
+    public <T extends Serializable> Optional<T> sendSilently(BotApiMethod<T> message) {
         try {
-            send(message);
+            return Optional.of(send(message));
         } catch (TelegramApiException e) {
             log.error("Unable to sent message: {}", e.getMessage(), e);
         }
+        return Optional.empty();
+    }
+
+    public <T extends Serializable> T send(BotApiMethod<T> message) throws TelegramApiException {
+        log.info("Sending message {} ...", message.getClass());
+        return bot.execute(message);
+    }
+
+    public Message send(SendDocument message) throws TelegramApiException {
+        log.info("Sending document message to {} ...", message.getChatId());
+        return bot.execute(message);
+    }
+
+    public Message send(SendPhoto message) throws TelegramApiException {
+        log.info("Sending photo message to {} ...", message.getChatId());
+        return bot.execute(message);
+    }
+
+    public Message send(SendAudio message) throws TelegramApiException {
+        log.info("Sending audio message to {} ...", message.getChatId());
+        return bot.execute(message);
+    }
+
+    public Message send(SendVideo message) throws TelegramApiException {
+        log.info("Sending video message to {} ...", message.getChatId());
+        return bot.execute(message);
+    }
+
+    public void send(SendSticker sticker) throws TelegramApiException {
+        log.info("Sending sticker to {} ...", sticker.getChatId());
+        bot.execute(sticker);
+    }
+
+    public void send(SendMediaGroup group) throws TelegramApiException {
+        log.info("Sending media group to {} ...", group.getChatId());
+        bot.execute(group);
     }
 }

@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.List;
 
 public final class TelegramMessageUtils {
-    private static final int MAX_MESSAGE_LENGTH = 4096;
+    public static final int MAX_MESSAGE_LENGTH = 4096;
 
     public static String tgEscape(String parseMode, String text) {
         if (StringUtils.isEmpty(text)) {
@@ -27,8 +27,12 @@ public final class TelegramMessageUtils {
     }
 
     public static String reduceMessageIfNeeds(String parseMode, String text) {
-        if (text.length() > MAX_MESSAGE_LENGTH) {
-            return text.substring(0, MAX_MESSAGE_LENGTH - 10) + tgEscape(parseMode, " ...");
+        return reduceMessageIfNeeds(parseMode, text, MAX_MESSAGE_LENGTH - 10);
+    }
+
+    public static String reduceMessageIfNeeds(String parseMode, String text, int maxLength ) {
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength) + tgEscape(parseMode, " ...");
         }
         return text;
     }

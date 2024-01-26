@@ -1,7 +1,8 @@
-package me.jonua.herrziggy_bot.mail;
+package me.jonua.herrziggy_bot.mail.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.mail.MailNotificationContext;
 import me.jonua.herrziggy_bot.utils.DateTimeUtils;
 import me.jonua.herrziggy_bot.utils.Utils;
 import org.jsoup.Jsoup;
@@ -27,7 +28,7 @@ import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.tgEscape;
 
 @Slf4j
 @RequiredArgsConstructor
-class TelegramMessageFromMailBuilder extends MailMessageParser {
+public class Mime2TelegramMessagesBuilder extends MimeMessageParser {
     private final MailNotificationContext ctx;
     private final Locale locale;
     private final StringBuilder tgMessageBuilder = new StringBuilder();

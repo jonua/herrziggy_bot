@@ -1,4 +1,4 @@
-package me.jonua.herrziggy_bot.mail;
+package me.jonua.herrziggy_bot.mail.parser;
 
 import jakarta.activation.MimeTypeParseException;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class MailMessageParser {
+public abstract class MimeMessageParser {
     protected void onTextPlain(String content) {
         log.info("onTextPlain");
     }
