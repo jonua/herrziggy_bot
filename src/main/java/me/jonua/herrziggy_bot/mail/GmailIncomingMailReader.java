@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.service.mail.MailConfigurationService;
 
-import javax.mail.*;
-import javax.mail.event.MessageCountAdapter;
-import javax.mail.event.MessageCountEvent;
+import javax.mail.Folder;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 import java.util.Map;
 import java.util.Properties;
 
@@ -48,7 +49,7 @@ public class GmailIncomingMailReader {
             }
 
             inbox = store.getFolder("INBOX");
-            inbox.addMessageCountListener(messageCountListener(messageNotifier, mailConfiguration, mailConfigurationService));
+            inbox.addMessageCountListener(new GmailMessageCountAdapter(messageNotifier, mailConfiguration, mailConfigurationService));
 
             IdleThread idleThread = new IdleThread(inbox, mailConfiguration.getUsername(), mailConfiguration.getPassword());
             idleThread.setDaemon(false);
@@ -64,23 +65,6 @@ public class GmailIncomingMailReader {
             close(inbox);
             close(store);
         }
-    }
-
-    private static MessageCountAdapter messageCountListener(TelegramGroupNotifier messageNotifier, MailConfiguration mailConfiguration,
-                                                            MailConfigurationService mailConfigurationService) {
-        return new MessageCountAdapter() {
-            @Override
-            public void messagesAdded(MessageCountEvent event) {
-                for (Message message : event.getMessages()) {
-                    try {
-                        messageNotifier.notifySubscribers(mailConfiguration.getTgSource().getSourceId(), mailConfiguration.getZoneId(), message);
-                        mailConfigurationService.updateLastUse(mailConfiguration.getUuid());
-                    } catch (Exception e) {
-                        log.error("MessageCountAdapter error: {}", e.getMessage(), e);
-                    }
-                }
-            }
-        };
     }
 
     private static class IdleThread extends Thread {

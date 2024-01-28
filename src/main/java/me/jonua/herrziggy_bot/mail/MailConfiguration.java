@@ -1,9 +1,6 @@
 package me.jonua.herrziggy_bot.mail;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import me.jonua.herrziggy_bot.model.BaseEntity;
@@ -11,6 +8,7 @@ import me.jonua.herrziggy_bot.model.TgSource;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,6 +28,11 @@ public class MailConfiguration extends BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUse;
 
-    @ManyToOne
-    private TgSource tgSource;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "mail_subscriber",
+            inverseJoinColumns = @JoinColumn(name = "tg_source_id"),
+            joinColumns = @JoinColumn(name = "mail_configuration_id")
+    )
+    private List<TgSource> tgSources;
 }

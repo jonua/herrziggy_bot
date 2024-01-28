@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.enums.HashTags;
+import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,20 +41,21 @@ public class TelegramGroupNotifier {
     private final MessageSender messageSender;
     private final StorageService storageService;
 
-    public void notifySubscribers(String chatId, ZoneId zoneId, Message mailMessage) throws MessagingException {
-        log.info("New mail for group receiver {}", chatId);
+    public void notifySubscribers(MailConfiguration mailConfiguration, Message mailMessage) throws MessagingException {
+        log.info("New mail from receiver {}", mailConfiguration.getUsername());
+        for (TgSource tgSource : mailConfiguration.getTgSources()) {
+            MailNotificationContext ctx = buildContext(mailMessage, mailConfiguration.getZoneId(), tgSource.getSourceId());
 
-        MailNotificationContext ctx = buildContext(chatId, zoneId, mailMessage);
+            Pair<SendMessage, Map<String, List<InputMedia>>> parsedResult = telegramMessageBuilder.buildFromMail(mailMessage, ctx);
 
-        Pair<SendMessage, Map<String, List<InputMedia>>> parsedResult = telegramMessageBuilder.buildFromMail(mailMessage, ctx);
+            SendMessage messageToBeSend = provideTags(parsedResult.getFirst(), ctx);
+            Map<String, List<InputMedia>> medias = parsedResult.getSecond();
+            List<SendMediaGroup> groups = toGroups(tgSource.getSourceId(), medias);
 
-        SendMessage messageToBeSend = provideTags(parsedResult.getFirst(), ctx);
-        Map<String, List<InputMedia>> medias = parsedResult.getSecond();
-        List<SendMediaGroup> groups = toGroups(chatId, medias);
-
-        log.info("Mail for group {} parsed with {} medias will be sent to the chat", chatId, medias.size());
-        sendToTelegram(messageToBeSend, groups);
-        log.info("Mail for group {} parsed with {} medias send to the chat", chatId, medias.size());
+            log.info("Mail for group {} parsed with {} medias will be sent to the chat", tgSource.getSourceId(), medias.size());
+            sendToTelegram(messageToBeSend, groups);
+            log.info("Mail for group {} parsed with {} medias send to the chat", tgSource.getSourceId(), medias.size());
+        }
     }
 
     private void sendToTelegram(SendMessage messageToBeSend, List<SendMediaGroup> groups) {
@@ -120,11 +122,10 @@ public class TelegramGroupNotifier {
     }
 
     @NotNull
-    private static MailNotificationContext buildContext(String chatId, ZoneId zoneId, Message mailMessage) throws
+    private static MailNotificationContext buildContext(Message mailMessage, ZoneId zoneId, String sourceId) throws
             MessagingException {
         MailNotificationContext ctx = MailNotificationContext.fromMessage(mailMessage, zoneId);
-        ctx.setTelegramChatId(chatId);
-        ctx.setZoneId(zoneId);
+        ctx.setTelegramChatId(sourceId);
         ctx.setTelegramMessageParseMode(ParseMode.MARKDOWNV2);
         return ctx;
     }

@@ -28,9 +28,6 @@ public class MailNotificationContext {
     private String telegramChatId;
 
     @Setter
-    private ZoneId zoneId;
-
-    @Setter
     private String telegramMessageParseMode = null;
 
     public static MailNotificationContext fromMessage(Message mailMessage, ZoneId zoneId) throws MessagingException {

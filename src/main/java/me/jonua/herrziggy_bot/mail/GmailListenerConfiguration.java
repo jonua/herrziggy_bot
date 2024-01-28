@@ -1,7 +1,6 @@
 package me.jonua.herrziggy_bot.mail;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.service.mail.MailConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,10 +31,7 @@ public class GmailListenerConfiguration implements ApplicationListener<ContextRe
         List<MailConfiguration> activeMailConfigurations = mailConfigurationService.getActiveConfigurations();
 
         for (MailConfiguration config : activeMailConfigurations) {
-            Optional<TgSource> source = storageService.findBySourceId(config.getTgSource().getSourceId());
-            String title = source.map(TgSource::getTitle).orElse(null);
-            log.info("Mail notificator enabled for {} and will notify about new messages to {}:{}",
-                    config.getUsername(), config.getTgSource().getSourceId(), title);
+            log.info("Mail notificator enabled for {} and will notify all subscribers", config.getUsername());
             GmailIncomingMailReader reader = new GmailIncomingMailReader(this.notifier, config, mailConfigurationService);
             executorService.submit(reader::startListening);
         }

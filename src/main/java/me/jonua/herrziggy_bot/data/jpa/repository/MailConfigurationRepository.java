@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface MailConfigurationRepository extends BaseRepository<MailConfiguration> {
-    @Query("SELECT c FROM MailConfiguration c WHERE c.active = true AND c.tgSource IS NOT NULL")
+    @Query("SELECT c FROM MailConfiguration c JOIN c.tgSources s WHERE c.active = true")
     List<MailConfiguration> findAllActive();
 
     @Modifying
