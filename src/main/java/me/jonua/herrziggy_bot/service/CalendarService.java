@@ -1,15 +1,19 @@
 package me.jonua.herrziggy_bot.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
+import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
 import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
+import me.jonua.herrziggy_bot.model.CalendarNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Locale;
 
 import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
@@ -18,6 +22,7 @@ import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 @Service
 @RequiredArgsConstructor
 public class CalendarService {
+    private final CalendarRepository calendarRepository;
     @Value("${bot.locale}")
     private Locale locale;
     private final GoogleCalendarApi googleCalendarApi;
@@ -50,5 +55,19 @@ public class CalendarService {
             case FULL_SEMESTER_SEMINARS -> Pair.of(getStartOfDay(subjectDate), getEndOfHalfYear(subjectDate));
             case FULL_SEMESTER_TESTS -> Pair.of(getStartOfDay(subjectDate), getEndOfHalfYear(subjectDate));
         };
+    }
+
+    @Transactional
+    public List<CalendarNotificationConfiguration> findActiveSchedules() {
+        return calendarRepository.findActiveSchedules();
+    }
+
+    @Transactional
+    public CalendarNotificationConfiguration getNotificationConfiguration(String configUuid) {
+        return calendarRepository.findNotificationConfiguration(configUuid)
+                .orElseThrow(() -> {
+                    log.error("No notification configuration with uuid {} was found", configUuid);
+                    return new RuntimeException("No notification configuration found");
+                });
     }
 }

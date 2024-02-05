@@ -3,7 +3,6 @@ bot:
   locale: ru
   token: "-"
   name: "-"
-  chat-id: "-"
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
   feedback:
     sent-to-user-id: "-"
