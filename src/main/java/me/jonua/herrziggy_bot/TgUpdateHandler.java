@@ -60,7 +60,7 @@ public class TgUpdateHandler {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }
         } else {
-            log.warn("Unhandled update: {}", update);
+            log.trace("Unhandled update: {}", update);
         }
     }
 }
