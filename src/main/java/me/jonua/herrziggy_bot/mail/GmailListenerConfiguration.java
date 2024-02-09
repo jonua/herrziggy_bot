@@ -1,7 +1,6 @@
 package me.jonua.herrziggy_bot.mail;
 
 import lombok.extern.slf4j.Slf4j;
-import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.service.mail.MailConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -20,9 +19,6 @@ public class GmailListenerConfiguration implements ApplicationListener<ContextRe
 
     @Autowired
     private TelegramGroupNotifier notifier;
-
-    @Autowired
-    private StorageService storageService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
