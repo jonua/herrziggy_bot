@@ -13,6 +13,7 @@ bot:
   calendar:
     select-your-calendar-message: Выбери календарь
     reconfigured-message: Все готово, теперь ты можешь получать эвенты из календаря, отправляя команды боту из меню
+    scheduling-cron: "0 0 10 * * 1"
 google-cloud:
   calendar:
     api:

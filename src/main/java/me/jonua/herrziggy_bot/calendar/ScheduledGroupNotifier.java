@@ -31,7 +31,7 @@ public class ScheduledGroupNotifier {
         return new ScheduledTaskRegistrar();
     }
 
-    @Scheduled(cron = "0 0 10 * * 1")
+    @Scheduled(cron = "${bot.calendar.scheduling-cron}")
     public void updatedCalendarNotificationSchedules() {
         List<CalendarNotificationConfiguration> activeSchedules = calendarService.findActiveSchedules();
         for (CalendarNotificationConfiguration activeSchedule : activeSchedules) {
