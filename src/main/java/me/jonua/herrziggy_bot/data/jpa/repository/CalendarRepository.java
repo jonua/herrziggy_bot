@@ -10,8 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface CalendarRepository extends BaseRepository<Calendar> {
-    @Query("SELECT c FROM Calendar c WHERE c = (SELECT s.calendar FROM TgSource s WHERE s.sourceId = :sourceId AND s.type != null)")
-    Optional<Calendar> findBySourceId(String sourceId);
+    @Query("SELECT c FROM TgSource s JOIN s.calendars c WHERE s.sourceId = :sourceId AND s.type != null")
+    List<Calendar> findBySourceId(String sourceId);
 
     Optional<Calendar> findByUuid(String calendarUuid);
 

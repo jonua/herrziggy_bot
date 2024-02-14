@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.calendar.GoogleCalendarApi;
+import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
 import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
@@ -13,8 +14,10 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 
@@ -42,6 +45,23 @@ public class CalendarService {
         String timeMax = formatDate(periodDates.getSecond(), locale, FORMAT_FULL);
 
         return googleCalendarApi.searchEvents(calendarId, timeMin, timeMax, q);
+    }
+
+    @Transactional
+    public List<CalendarEventItemDto> getMergedCalendarsEvents(CalendarPeriod calendarPeriod, List<String> calendarIds) {
+        return getMergedCalendarsEvents(calendarPeriod, calendarIds, null);
+    }
+
+    @Transactional
+    public List<CalendarEventItemDto> getMergedCalendarsEvents(CalendarPeriod calendarPeriod, List<String> calendarIds, String q) {
+        List<CalendarEventItemDto> collect = calendarIds.stream()
+                .map(calendarId -> getCalendarEvents(calendarPeriod, calendarId, q))
+                .map(CalendarEventsDto::getItems)
+                .flatMap(List::stream)
+                .distinct()
+                .sorted(Comparator.comparing(e -> e.getStart().getDateTime()))
+                .collect(Collectors.toList());
+        return collect;
     }
 
     private Pair<ZonedDateTime, ZonedDateTime> getPeriod(CalendarPeriod period, ZonedDateTime subjectDate) {
