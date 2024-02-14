@@ -10,14 +10,13 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.redisson.api.RTimeSeries;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.LongCodec;
-import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Aspect
-@Component
+//@Component
 @RequiredArgsConstructor
 public class CollectStatisticsAspect {
     private final RedissonClient redissonClient;
