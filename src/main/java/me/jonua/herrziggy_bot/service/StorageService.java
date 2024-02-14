@@ -93,7 +93,7 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<Calendar> findCalendarByUser(String tgUserId) {
+    public List<Calendar> findUserCalendars(String tgUserId) {
         return calendarRepository.findBySourceId(tgUserId);
     }
 
@@ -107,7 +107,7 @@ public class StorageService {
         findCalendarByUuid(calendarUuid)
                 .ifPresent(calendar -> {
                     findBySourceId(tgUserId).ifPresent(source -> {
-                        source.setCalendar(calendar);
+                        source.getCalendars().add(calendar);
                         tgSourceRepository.save(source);
                         log.info("Calendar updated for source:{}. New calendar is {}", tgUserId, calendar.getUuid());
                     });
@@ -120,7 +120,7 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<Calendar> findCalendarByGroup(String groupId) {
+    public List<Calendar> findGroupCalendars(String groupId) {
         return calendarRepository.findBySourceId(groupId);
     }
 

@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.handlers.GetCalendarCommandHandler;
+import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.model.CalendarNotificationConfiguration;
+import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.service.CalendarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -47,12 +50,21 @@ public class ScheduledGroupNotifier {
     @Transactional
     public void notifyCalendarSubscribers(String configUuid) {
         CalendarNotificationConfiguration config = calendarService.getNotificationConfiguration(configUuid);
-        log.info("Notifying group {} ({}) about week events from calendar {} ({})...",
-                config.getTgSource().getSourceId(), config.getTgSource().getTitle(),
-                config.getCalendar().getGoogleCalendarId(), config.getCalendar().getAdditionalInfo());
+        TgSource source = config.getTgSource();
+        List<Calendar> calendars = source.getCalendars();
+
+        log.info("Notifying group {} ({}) about week events from calendars {} ...",
+                source.getSourceId(), source.getTitle(),
+                calendars.stream()
+                        .map(c -> String.format("%s (%s)", c.getGoogleCalendarId(), c.getAdditionalInfo())).collect(Collectors.joining(", "))
+        );
 
         calendarCommandHandler
-                .sendCalendar(config.getCalendar().getGoogleCalendarId(), config.getTgSource().getSourceId(),
-                        BotCommand.THIS_WEEK, false);
+                .sendCalendar(
+                        calendars.stream().map(Calendar::getGoogleCalendarId).collect(Collectors.toList()),
+                        source.getSourceId(),
+                        BotCommand.THIS_WEEK,
+                        false
+                );
     }
 }
