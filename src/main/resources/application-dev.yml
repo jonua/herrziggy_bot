@@ -1,0 +1,85 @@
+default-zone-id: Europe/Moscow
+bot:
+  locale: ru
+  token: 6858655246:AAGGMTq3L6xSsFcYCdoh_sQFRqxCVoSBCZI
+  name: HerrZiggyTESTbot
+  max-allowed-entity-size-bytes: 10_000_000 # 10mb
+  feedback:
+    sent-to-user-id: 154033750
+    thanks-for-feedback-message: "Thanks for you feedback!"
+    give-feedback-message: "Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены"
+    no-calendar-events-found: Не найдено событий в календаре на этот период
+  bot-common-info-message: "Please, use the Menu button in our conversation. Next commands are supported:"
+  calendar:
+    select-your-calendar-message: Выбери календарь
+    reconfigured-message: Все готово, теперь ты можешь получать эвенты из календаря, отправляя команды боту из меню
+google-cloud:
+  calendar:
+    api:
+      key: AIzaSyAPN2LSqWIhObz7Zat0gPkzCzkimfR66jg
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/herrziggy
+    username: postgres
+    password: root
+    driverClassName: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+  flyway:
+    #    locations: db/migration,db/migration-dev
+    locations: db/migration
+logging:
+  level:
+    root: warn
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - root-info
+logging:
+  level:
+    root: info
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - app-debug
+logging:
+  level:
+    root: warn
+    me.jonua.herrziggy_bot: debug
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - app-trace
+logging:
+  level:
+    root: warn
+    me.jonua.herrziggy_bot: trace
+---
+spring:
+  config:
+    activate:
+      on-profile: jpa-debug
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.jdbc.core.JdbcTemplate: debug
+    org.springframework.jdbc.core.NamedParameterJdbcTemplate: debug
+    org.springframework.jdbc.core.StatementCreatorUtils: debug
+    org.springframework.orm.jpa.EntityManagerFactoryUtils: debug
+    org.springframework.orm.jpa.JpaTransactionManager: debug
+    org.hibernate.engine.transaction.internal.TransactionImpl: debug
+---
+spring:
+  config:
+    activate:
+      on-profile: hikari-debug
+logging:
+  level:
+    com.zaxxer.hikari: debug
