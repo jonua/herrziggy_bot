@@ -12,7 +12,7 @@ import lombok.Setter;
 public class CalendarNotificationConfiguration extends BaseEntity {
     private boolean active = false;
     @OneToOne(fetch = FetchType.EAGER)
-    private Calendar calendar;
+    private CalendarConfiguration calendarConfiguration;
     @OneToOne(fetch = FetchType.EAGER)
     private TgSource tgSource;
 }

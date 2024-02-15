@@ -24,10 +24,13 @@ spring:
     password: root
     driverClassName: org.postgresql.Driver
   jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
     open-in-view: false
   flyway:
-#    locations: db/migration,db/migration-dev
-    locations: db/migration
+    locations: db/migration,db/migration-dev
 logging:
   level:
     root: warn

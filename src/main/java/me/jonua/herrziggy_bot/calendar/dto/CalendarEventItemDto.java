@@ -5,17 +5,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
 @Setter
 public class CalendarEventItemDto {
-    private static final Pattern PATTERN_SUMMARY_WITHOUT_GROUP_DISCRIMINATOR = Pattern.compile("^(.+)(\\([\\d]{1,} [а-яА-Я]+\\))$");
-
     private String kind;
     private String etag;
     private String id;
@@ -39,16 +34,9 @@ public class CalendarEventItemDto {
         CalendarEventItemDto that = (CalendarEventItemDto) o;
         return Objects.equals(kind, that.kind) &&
                 Objects.equals(status, that.status) &&
-                compareSummary(that) &&
+                Objects.equals(summary, that.summary) &&
                 Objects.equals(start, that.start) &&
                 Objects.equals(end, that.end);
-    }
-
-    private boolean compareSummary(CalendarEventItemDto that) {
-        String thisSummary = getSummaryByPatternOrOriginSummary(summary).replace(" ", "").toLowerCase();
-        String thatSummary = getSummaryByPatternOrOriginSummary(that.summary).replace(" ", "").toLowerCase();
-
-        return thisSummary.equals(thatSummary);
     }
 
     @Override
@@ -56,18 +44,10 @@ public class CalendarEventItemDto {
         int hash = Objects.hash(
                 kind,
                 status,
-                getSummaryByPatternOrOriginSummary(summary).replace(" ", "").toLowerCase(Locale.ROOT),
+                summary,
                 start,
                 end);
         log.warn("summary {} kind {} status {} start {} end {} hash {}", summary, kind, status, start, end, hash);
         return hash;
-    }
-
-    private String getSummaryByPatternOrOriginSummary(String summary) {
-        Matcher matcher = CalendarEventItemDto.PATTERN_SUMMARY_WITHOUT_GROUP_DISCRIMINATOR.matcher(summary);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return summary;
     }
 }

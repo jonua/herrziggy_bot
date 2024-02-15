@@ -17,6 +17,9 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
@@ -25,6 +28,9 @@ import static me.jonua.herrziggy_bot.utils.DateTimeUtils.*;
 @Service
 @RequiredArgsConstructor
 public class CalendarService {
+    private static final String STREAM_NAME_PATTERN = "^(.+)\\(\\d?\\s+([потокПОТОК]{5,})\\)$";
+    private static final Pattern STREAM_NAME_COMPILED_PATTERN = Pattern.compile(STREAM_NAME_PATTERN);
+
     private final CalendarRepository calendarRepository;
     @Value("${bot.locale}")
     private Locale locale;
@@ -44,6 +50,7 @@ public class CalendarService {
         String timeMin = formatDate(periodDates.getFirst(), locale, FORMAT_FULL);
         String timeMax = formatDate(periodDates.getSecond(), locale, FORMAT_FULL);
 
+        Objects.requireNonNull(calendarId);
         return googleCalendarApi.searchEvents(calendarId, timeMin, timeMax, q);
     }
 
@@ -54,14 +61,31 @@ public class CalendarService {
 
     @Transactional
     public List<CalendarEventItemDto> getMergedCalendarsEvents(CalendarPeriod calendarPeriod, List<String> calendarIds, String q) {
-        List<CalendarEventItemDto> collect = calendarIds.stream()
+        return calendarIds.stream()
                 .map(calendarId -> getCalendarEvents(calendarPeriod, calendarId, q))
+                .map(events -> {
+                    if (calendarIds.size() > 1) {
+                        return removeStreamNameFromSummary(events);
+                    } else {
+                        return events;
+                    }
+                })
                 .map(CalendarEventsDto::getItems)
                 .flatMap(List::stream)
                 .distinct()
                 .sorted(Comparator.comparing(e -> e.getStart().getDateTime()))
                 .collect(Collectors.toList());
-        return collect;
+    }
+
+    private CalendarEventsDto removeStreamNameFromSummary(CalendarEventsDto events) {
+        events.getItems()
+                .forEach(item -> {
+                    Matcher matcher = STREAM_NAME_COMPILED_PATTERN.matcher(item.getSummary().trim());
+                    if (matcher.find()) {
+                        item.setSummary(matcher.group(1).trim());
+                    }
+                });
+        return events;
     }
 
     private Pair<ZonedDateTime, ZonedDateTime> getPeriod(CalendarPeriod period, ZonedDateTime subjectDate) {
@@ -78,8 +102,8 @@ public class CalendarService {
     }
 
     @Transactional
-    public List<CalendarNotificationConfiguration> findActiveSchedules() {
-        return calendarRepository.findActiveSchedules();
+    public List<CalendarNotificationConfiguration> findActiveConfigurations() {
+        return calendarRepository.findActiveConfigurations();
     }
 
     @Transactional
@@ -88,6 +112,20 @@ public class CalendarService {
                 .orElseThrow(() -> {
                     log.error("No notification configuration with uuid {} was found", configUuid);
                     return new RuntimeException("No notification configuration found");
+                });
+    }
+
+    @Transactional
+    public List<String> findGoogleCalendarIdsByUser(String tgUserId) {
+        return calendarRepository.findGoogleCalendarIdsByUser(tgUserId);
+    }
+
+    @Transactional
+    public String getCalendarNameByUser(String tgUserId) {
+        return calendarRepository.findCalendarNameByUser(tgUserId)
+                .orElseGet(() -> {
+                    log.error("No calendars found for user {}", tgUserId);
+                    return "";
                 });
     }
 }

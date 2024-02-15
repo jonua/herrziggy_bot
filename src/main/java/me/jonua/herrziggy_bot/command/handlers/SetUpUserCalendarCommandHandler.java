@@ -6,7 +6,7 @@ import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
 import me.jonua.herrziggy_bot.flow.MessageHandlerService;
-import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,10 +66,10 @@ public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
     @NotNull
     private List<List<InlineKeyboardButton>> buildButtons() {
         Sort sorting = Sort.by(Sort.Order.asc("orderValue"));
-        List<Calendar> calendars = storageService.getCalendars(sorting);
+        List<CalendarConfiguration> calendars = storageService.getCalendars(sorting);
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        for (Calendar calendar : calendars) {
+        for (CalendarConfiguration calendar : calendars) {
             InlineKeyboardButton calendarButton = buildCalendarButton(calendar);
             if (buttons.isEmpty() || buttons.getLast().size() % 2 == 0) {
                 buttons.add(new ArrayList<>());
@@ -81,14 +81,14 @@ public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
         return buttons;
     }
 
-    private InlineKeyboardButton buildCalendarButton(Calendar calendar) {
+    private InlineKeyboardButton buildCalendarButton(CalendarConfiguration calendar) {
         return InlineKeyboardButton.builder()
                 .callbackData("cf:calendar:" + calendar.getUuid())
                 .text(buildCalendarName(calendar))
                 .build();
     }
 
-    private String buildCalendarName(Calendar calendar) {
+    private String buildCalendarName(CalendarConfiguration calendar) {
         return calendar.getAdditionalInfo();
     }
 

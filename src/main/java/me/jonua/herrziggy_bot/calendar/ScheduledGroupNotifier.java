@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.handlers.GetCalendarCommandHandler;
-import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.model.CalendarNotificationConfiguration;
+import me.jonua.herrziggy_bot.model.CalendarSource;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.service.CalendarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,9 @@ public class ScheduledGroupNotifier {
 
     @Scheduled(cron = "${bot.calendar.scheduling-cron}")
     public void updatedCalendarNotificationSchedules() {
-        List<CalendarNotificationConfiguration> activeSchedules = calendarService.findActiveSchedules();
+        List<CalendarNotificationConfiguration> activeSchedules = calendarService.findActiveConfigurations();
         for (CalendarNotificationConfiguration activeSchedule : activeSchedules) {
-            if (activeSchedule.getCalendar() == null) {
+            if (activeSchedule.getCalendarConfiguration() == null) {
                 log.warn("Schedule {} has no any linked calendars", activeSchedule.getUuid());
                 continue;
             }
@@ -51,17 +52,18 @@ public class ScheduledGroupNotifier {
     public void notifyCalendarSubscribers(String configUuid) {
         CalendarNotificationConfiguration config = calendarService.getNotificationConfiguration(configUuid);
         TgSource source = config.getTgSource();
-        List<Calendar> calendars = source.getCalendars();
+        CalendarConfiguration calendarConfiguration = source.getCalendarConfiguration();
 
         log.info("Notifying group {} ({}) about week events from calendars {} ...",
                 source.getSourceId(), source.getTitle(),
-                calendars.stream()
-                        .map(c -> String.format("%s (%s)", c.getGoogleCalendarId(), c.getAdditionalInfo())).collect(Collectors.joining(", "))
+                calendarConfiguration.getCalendarSources().stream()
+                        .map(c -> String.format("%s (%s)", c.getGoogleCalendarId(), c.getName())).collect(Collectors.joining(", "))
         );
 
         calendarCommandHandler
                 .sendCalendar(
-                        calendars.stream().map(Calendar::getGoogleCalendarId).collect(Collectors.toList()),
+                        calendarConfiguration.getAdditionalInfo(),
+                        calendarConfiguration.getCalendarSources().stream().map(CalendarSource::getGoogleCalendarId).collect(Collectors.toList()),
                         source.getSourceId(),
                         BotCommand.THIS_WEEK,
                         false

@@ -1,11 +1,9 @@
 package me.jonua.herrziggy_bot.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,11 +19,6 @@ public class TgSource extends BaseEntity {
     private Boolean isPremium = false;
     private String migrateFromChatId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "tg_source_calendar",
-            joinColumns = @JoinColumn(name = "tg_source_id"),
-            inverseJoinColumns = @JoinColumn(name = "calendar_id")
-    )
-    private List<Calendar> calendars = new ArrayList<>();
+    @ManyToOne
+    private CalendarConfiguration calendarConfiguration;
 }

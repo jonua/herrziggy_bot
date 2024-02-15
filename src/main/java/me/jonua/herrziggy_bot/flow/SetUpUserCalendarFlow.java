@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
-import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.service.StorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class SetUpUserCalendarFlow implements UserFlow {
                 });
     }
 
-    private void reassignCalendar(Update update, Calendar calendar) {
+    private void reassignCalendar(Update update, CalendarConfiguration calendar) {
         User from = update.getCallbackQuery().getFrom();
         storageService.assignCalendar(from.getId(), calendar.getUuid());
         AnswerCallbackQuery answerQuery = AnswerCallbackQuery.builder()
