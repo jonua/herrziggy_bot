@@ -26,7 +26,7 @@ spring:
   jpa:
     open-in-view: false
   flyway:
-    #    locations: db/migration,db/migration-dev
+#    locations: db/migration,db/migration-dev
     locations: db/migration
 logging:
   level:
