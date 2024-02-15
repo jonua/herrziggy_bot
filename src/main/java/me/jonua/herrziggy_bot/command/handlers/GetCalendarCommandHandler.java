@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.calendar.dto.CalendarEventItemDto;
-import me.jonua.herrziggy_bot.calendar.dto.CalendarEventsDto;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
 import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
-import me.jonua.herrziggy_bot.model.Calendar;
 import me.jonua.herrziggy_bot.service.CalendarService;
 import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
@@ -48,15 +46,16 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
     @Override
     public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
         String tgUserId = String.valueOf(update.getMessage().getFrom().getId());
-        Optional<Calendar> calendarOpt = storageService.findCalendarByUser(tgUserId);
+        List<String> googleCalendarIds = calendarService.findGoogleCalendarIdsByUser(tgUserId);
 
         boolean respondWithNoDataMessage = (boolean) payload.getOrDefault("respondWithNoDataMessage", false);
-        calendarOpt.ifPresentOrElse(calendar -> {
-            sendCalendarTo(calendar.getGoogleCalendarId(), tgUserId, command, respondWithNoDataMessage);
-        }, () -> {
+        if (googleCalendarIds.isEmpty()) {
             log.warn("No calendar found for user:{}", tgUserId);
             commandHandlerService.handleCommand(BotCommand.SETUP_USER_CALENDAR, from, update);
-        });
+        } else {
+            String calendarName = calendarService.getCalendarNameByUser(tgUserId);
+            sendCalendar(calendarName, googleCalendarIds, tgUserId, command, respondWithNoDataMessage);
+        }
     }
 
     @Override
@@ -65,35 +64,35 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
                 .anyMatch(cmd -> BotCommandType.CALENDAR.equals(command.getCommandType()));
     }
 
-    private void sendCalendarTo(String calendarId, String tgUserId, BotCommand command, boolean respondWithNoDataMessage) {
+    private void sendCalendarTo(String calendarName, List<String> calendarIds, String tgUserId, BotCommand command, boolean respondWithNoDataMessage) {
         switch (command) {
             case TWO_DAYS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.TWO_DAYS, calendarId);
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.TWO_DAYS, calendarIds);
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case THIS_WEEK -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.THIS_WEEK, calendarId);
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.THIS_WEEK, calendarIds);
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case NEXT_WEEK -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.NEXT_WEEK, calendarId);
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.NEXT_WEEK, calendarIds);
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case CURRENT_30_DAYS_SEMINARS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_SEMINARS, calendarId, "семинар");
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.CURRENT_30_DAYS_SEMINARS, calendarIds, "семинар");
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case CURRENT_30_DAYS_TESTS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.CURRENT_30_DAYS_TESTS, calendarId, "зачет");
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.CURRENT_30_DAYS_TESTS, calendarIds, "зачет");
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case FULL_SEMESTER_SEMINARS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.FULL_SEMESTER_SEMINARS, calendarId, "семинар");
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.FULL_SEMESTER_SEMINARS, calendarIds, "семинар");
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
             case FULL_SEMESTER_TESTS -> {
-                CalendarEventsDto events = calendarService.getCalendarEvents(CalendarPeriod.FULL_SEMESTER_TESTS, calendarId, "зачет");
-                respondWithCalendarData(tgUserId, command, events, respondWithNoDataMessage);
+                List<CalendarEventItemDto> items = calendarService.getMergedCalendarsEvents(CalendarPeriod.FULL_SEMESTER_TESTS, calendarIds, "зачет");
+                respondWithCalendarData(calendarName, tgUserId, command, items, respondWithNoDataMessage);
             }
 
             default -> {
@@ -103,10 +102,10 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
         }
     }
 
-    private void respondWithCalendarData(String tgUserId, BotCommand command, CalendarEventsDto events, boolean respondWithNoDataMessage) {
+    private void respondWithCalendarData(String calendarName, String tgUserId, BotCommand command, List<CalendarEventItemDto> items, boolean respondWithNoDataMessage) {
         List<String> eventList = new ArrayList<>();
 
-        for (CalendarEventItemDto item : events.getItems()) {
+        for (CalendarEventItemDto item : items) {
             String line = String.format("__%s__ _%s\\-%s_: *%s*",
                     TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, locale, FORMAT_SHORT_DATE_WITH_DAY_NAME)),
                     TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, formatDate(item.getStart().getDateTime(), zoneId, locale, FORMAT_SHORT_TIME)),
@@ -122,7 +121,7 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
             sendMessage = buildNoCalendarData(tgUserId, eventList);
         } else {
             log.trace("Found {} calendar events", eventList.size());
-            sendMessage = buildCalendarData(tgUserId, command, eventList);
+            sendMessage = buildCalendarData(calendarName, tgUserId, command, eventList);
         }
 
         sendCalendarDataToUser(tgUserId, sendMessage, respondWithNoDataMessage);
@@ -150,9 +149,9 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
     }
 
     @NotNull
-    private SendMessage buildCalendarData(String tgUserId, BotCommand command, List<String> lines) {
-        String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, command.getDescription() + ":\n\n");
-        tgMessage += String.join("\n\n", lines);
+    private SendMessage buildCalendarData(String calendarName, String tgUserId, BotCommand command, List<String> events) {
+        String tgMessage = TelegramMessageUtils.tgEscape(ParseMode.MARKDOWNV2, command.getDescription() + " (" + calendarName + "):\n\n");
+        tgMessage += String.join("\n\n", events);
 
         return buildTelegramSendMessage(tgUserId, tgMessage);
     }
@@ -175,7 +174,7 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
         );
     }
 
-    public void sendCalendar(String calendarId, String sendToId, BotCommand command, boolean respondWithNoDataMessage) {
-        sendCalendarTo(calendarId, sendToId, command, respondWithNoDataMessage);
+    public void sendCalendar(String calendarName, List<String> calendarIds, String sendToId, BotCommand command, boolean respondWithNoDataMessage) {
+        sendCalendarTo(calendarName, calendarIds, sendToId, command, respondWithNoDataMessage);
     }
 }

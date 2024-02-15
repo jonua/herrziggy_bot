@@ -1,8 +1,7 @@
 package me.jonua.herrziggy_bot.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +19,6 @@ public class TgSource extends BaseEntity {
     private Boolean isPremium = false;
     private String migrateFromChatId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Calendar calendar;
+    @ManyToOne
+    private CalendarConfiguration calendarConfiguration;
 }

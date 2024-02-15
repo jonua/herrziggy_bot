@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
-import me.jonua.herrziggy_bot.model.Calendar;
+import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -93,35 +93,25 @@ public class StorageService {
     }
 
     @Transactional
-    public Optional<Calendar> findCalendarByUser(String tgUserId) {
-        return calendarRepository.findBySourceId(tgUserId);
-    }
-
-    @Transactional
-    public Optional<Calendar> findCalendarByUuid(String calendarUuid) {
+    public Optional<CalendarConfiguration> findCalendarByUuid(String calendarUuid) {
         return calendarRepository.findByUuid(calendarUuid);
     }
 
     @Transactional
     public void assignCalendar(Long tgUserId, String calendarUuid) {
         findCalendarByUuid(calendarUuid)
-                .ifPresent(calendar -> {
+                .ifPresent(calendarConfiguration -> {
                     findBySourceId(tgUserId).ifPresent(source -> {
-                        source.setCalendar(calendar);
+                        source.setCalendarConfiguration(calendarConfiguration);
                         tgSourceRepository.save(source);
-                        log.info("Calendar updated for source:{}. New calendar is {}", tgUserId, calendar.getUuid());
+                        log.info("Calendar updated for source:{}. New calendar is {}", tgUserId, calendarConfiguration.getUuid());
                     });
                 });
     }
 
     @Transactional
-    public List<Calendar> getCalendars(Sort sort) {
+    public List<CalendarConfiguration> getCalendars(Sort sort) {
         return calendarRepository.findAll(sort);
-    }
-
-    @Transactional
-    public Optional<Calendar> findCalendarByGroup(String groupId) {
-        return calendarRepository.findBySourceId(groupId);
     }
 
     @Transactional
