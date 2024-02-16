@@ -11,8 +11,7 @@ bot:
   token: "-"
   name: "-"
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
-  feedback:
-    sent-to-user-id: "-"
+  admin-telegram-id: "-"
   calendar:
     scheduling-cron: "0 0 10 * * 1"
 google-cloud:

@@ -17,7 +17,7 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
     @Value("${messages.feedback-thanks-message}")
     private String thanksForFeedbackMessage;
 
-    @Value("${bot.feedback.sent-to-user-id}")
+    @Value("${bot.admin-telegram-id}")
     private String sendFeedbackTo;
 
     private final MessageSender messageSender;

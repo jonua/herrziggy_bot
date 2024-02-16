@@ -22,7 +22,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DefaultResponseUserFlow implements UserFlow {
-    @Value("${bot.feedback.sent-to-user-id}")
+    @Value("${bot.admin-telegram-id}")
     private String botAdminUserId;
 
     @Value("${messages.menu-button-info-message}")
