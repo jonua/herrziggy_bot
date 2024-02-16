@@ -25,7 +25,7 @@ public class DefaultResponseUserFlow implements UserFlow {
     @Value("${bot.feedback.sent-to-user-id}")
     private String botAdminUserId;
 
-    @Value("${bot.bot-common-info-message}")
+    @Value("${messages.menu-button-info-message}")
     private String botCommonInfoMessage;
 
     private final MessageSender messageSender;

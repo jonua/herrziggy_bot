@@ -116,7 +116,7 @@ public class Mime2TelegramMessagesBuilder extends MimeMessageParser {
                 "\n" + tgEscape(ctx.getTelegramMessageParseMode(), stringMessage) +
                 "\n\n" + tgEscape(ctx.getTelegramMessageParseMode(), tags);
 
-        text = "*New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(), "\n") + text;
+        text = "\uD83D\uDCE8 *New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(), "\n") + text;
         text = reduceMessageIfNeeds(ctx.getTelegramMessageParseMode(), text);
 
         return new SendMessage(

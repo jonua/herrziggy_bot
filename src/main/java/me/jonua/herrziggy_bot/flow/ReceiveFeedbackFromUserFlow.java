@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Service
 @RequiredArgsConstructor
 public class ReceiveFeedbackFromUserFlow implements UserFlow {
-    @Value("${bot.feedback.thanks-for-feedback-message}")
+    @Value("${messages.feedback-thanks-message}")
     private String thanksForFeedbackMessage;
 
     @Value("${bot.feedback.sent-to-user-id}")

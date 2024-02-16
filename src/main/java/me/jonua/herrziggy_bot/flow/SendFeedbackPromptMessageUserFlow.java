@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Service
 @RequiredArgsConstructor
 public class SendFeedbackPromptMessageUserFlow implements UserFlow {
-    @Value("${bot.feedback.give-feedback-message}")
+    @Value("${messages.feedback-message}")
     private String giveFeedbackMessage;
     private final MessageHandlerService feedbackHandler;
     private final MessageSender messageSender;

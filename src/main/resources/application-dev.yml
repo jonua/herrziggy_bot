@@ -4,15 +4,6 @@ bot:
   token: 6858655246:AAGGMTq3L6xSsFcYCdoh_sQFRqxCVoSBCZI
   name: HerrZiggyTESTbot
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
-  feedback:
-    sent-to-user-id: 154033750
-    thanks-for-feedback-message: "Thanks for you feedback!"
-    give-feedback-message: "Теперь напиши свой фидбек, пожалуйста, или нажми /cancel_feedback для отмены"
-    no-calendar-events-found: Не найдено событий в календаре на этот период
-  bot-common-info-message: "Please, use the Menu button in our conversation. Next commands are supported:"
-  calendar:
-    select-your-calendar-message: Выбери календарь
-    reconfigured-message: Все готово, теперь ты можешь получать эвенты из календаря, отправляя команды боту из меню
 google-cloud:
   calendar:
     api:

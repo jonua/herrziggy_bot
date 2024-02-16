@@ -122,7 +122,7 @@ public class Mime2TelegramInputMediaBuilder extends MimeMessageParser {
                 divider(ctx) +
                 "\n" + tgEscape(ctx.getTelegramMessageParseMode(), stringMessage);
 
-        text = "*New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(), "\n") + text;
+        text = "\uD83D\uDCE8 *New mail" + tgEscape(ctx.getTelegramMessageParseMode(), "!") + "*\n" + tgEscape(ctx.getTelegramMessageParseMode(), "\n") + text;
 
         return new SendMessage(
                 ctx.getTelegramChatId(),

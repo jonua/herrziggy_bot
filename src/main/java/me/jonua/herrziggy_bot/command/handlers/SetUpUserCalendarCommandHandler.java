@@ -27,7 +27,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
-    @Value("${bot.calendar.select-your-calendar-message}")
+    @Value("${messages.calendar-select-message}")
     private String selectYourCalendarMessage;
     private final MessageSender messageSender;
     private final MessageHandlerService messageHandlerService;

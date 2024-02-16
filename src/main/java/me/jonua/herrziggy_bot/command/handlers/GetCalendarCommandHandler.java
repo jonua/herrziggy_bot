@@ -32,7 +32,7 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
     private ZoneId zoneId;
     @Value("${bot.locale}")
     private Locale locale;
-    @Value("${bot.feedback.no-calendar-events-found}")
+    @Value("${messages.calendar-no-events-found-message}")
     private String noCalendarEventsFound;
     private final MessageSender messageSender;
     private final StorageService storageService;
