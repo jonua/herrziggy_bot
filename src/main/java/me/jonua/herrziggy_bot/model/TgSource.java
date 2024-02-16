@@ -1,9 +1,12 @@
 package me.jonua.herrziggy_bot.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
+import me.jonua.herrziggy_bot.enums.Gender;
 
 @Getter
 @Setter
@@ -18,6 +21,8 @@ public class TgSource extends BaseEntity {
     private Boolean isBot = false;
     private Boolean isPremium = false;
     private String migrateFromChatId;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @ManyToOne
     private CalendarConfiguration calendarConfiguration;
