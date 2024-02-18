@@ -47,7 +47,7 @@ public class SetUpUserCalendarFlow implements UserFlow {
                 .build();
         try {
             messageSender.send(answerQuery);
-            messageSender.send(calendarReconfiguredMessage, from.getId());
+            messageSender.sendSilently(calendarReconfiguredMessage, from.getId());
         } catch (TelegramApiException e) {
             log.error("Unable to send message about a calendar has been reconfigured: {}", e.getMessage(), e);
         }

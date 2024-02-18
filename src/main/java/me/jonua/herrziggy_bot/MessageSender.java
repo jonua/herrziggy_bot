@@ -44,11 +44,11 @@ public class MessageSender {
         send(tgMessage);
     }
 
-    public void send(String text, Long sendToId) {
-        send(text, String.valueOf(sendToId), null);
+    public void sendSilently(String text, Long sendToId) {
+        sendSilently(text, String.valueOf(sendToId), null);
     }
 
-    public void send(String text, String sendToId, String parseMode) {
+    public void sendSilently(String text, String sendToId, String parseMode) {
         if (StringUtils.isEmpty(text)) {
             log.warn("Text can't be empty");
             return;
