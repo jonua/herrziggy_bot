@@ -62,7 +62,7 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
         for (TgSource source : sources) {
             log.info("Sending congratulation for {} {} ({}, {})",
                     source.getFirstName(), source.getLastName(), source.getUsername(), source.getSourceId());
-//            messageSender.sendSilently(congratulationText, source.getSourceId(), null);
+            messageSender.sendSilently(congratulationText, source.getSourceId(), null);
         }
     }
 }
