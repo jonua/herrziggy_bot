@@ -3,20 +3,22 @@ package me.jonua.herrziggy_bot.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.jonua.herrziggy_bot.data.jpa.projections.TgSourceProjection;
 import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
 import me.jonua.herrziggy_bot.enums.Gender;
 import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -134,5 +136,27 @@ public class StorageService {
     @Transactional
     public void markSourceAsUnKicked(Long sourceId) {
         tgSourceRepository.markAsUnKicked(sourceId);
+    }
+
+    @Transactional
+    public Map<Date, List<TgSourceProjection>> getStatNewUsers() {
+        List<TgSourceProjection> stat = tgSourceRepository.getStatNewUsers(Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
+        return groupByDateAndSort(stat);
+    }
+
+    @Transactional
+    public Map<Date, List<TgSourceProjection>> getStatActiveUsers() {
+        List<TgSourceProjection> stat = tgSourceRepository.getStatActiveUsers(Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
+        return groupByDateAndSort(stat);
+    }
+
+    @NotNull
+    private static Map<Date, List<TgSourceProjection>> groupByDateAndSort(List<TgSourceProjection> stat) {
+        Map<Date, List<TgSourceProjection>> result = stat.stream().collect(
+                Collectors.groupingBy(TgSourceProjection::getDate)
+        );
+        return result.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }

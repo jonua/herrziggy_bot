@@ -10,13 +10,14 @@ import java.util.Optional;
 
 @Getter
 public enum UserFlowType {
-    SEND_FEEDBACK_PROMPT_MESSAGE(UserFlowType.NOT_A_COMMAND),
-    RECEIVE_FEEDBACK(UserFlowType.NOT_A_COMMAND),
+    SEND_FEEDBACK_PROMPT_MESSAGE(UserFlowType.NONE),
+    RECEIVE_FEEDBACK(UserFlowType.NONE),
     RECEIVE_NEW_CALENDAR_CONFIG("cf"),
     CONGRATULATION_ON_8_MARCH("8march"),
-    ;
+    SHOW_STAT_NEW_USERS("statNew"),
+    SHOW_STAT_ACTIVE_USERS("statActive");
 
-    private final static String NOT_A_COMMAND = "-not a command-";
+    private final static String NONE = "-none-";
 
     private final String commandPrefix;
 

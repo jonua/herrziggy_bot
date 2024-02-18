@@ -12,6 +12,7 @@ public final class DateTimeUtils {
     public static final String FORMAT_FULL_DATE_SHORT_TIME = "d MMM, yyyy HH:mm";
     public static final String FORMAT_SHORT_DATE_WITH_DAY_NAME = "EEE, d MMM";
     public static final String FORMAT_SHORT_TIME = "HH:mm";
+    public static final String FORMAT_SHORT_DATE = "d MMM";
 
     public static String formatDate(ZonedDateTime zdt, Locale locale, String pattern) {
         return formatDate(zdt, ZoneId.systemDefault(), locale, pattern);

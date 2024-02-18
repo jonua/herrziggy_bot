@@ -61,7 +61,7 @@ public class DefaultResponseUserFlow implements UserFlow {
         }
 
         String messageFullText = "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + userInput;
-        messageSender.sendSilently(Long.parseLong(botAdminUserId), messageFullText);
+        messageSender.sendSilently(messageFullText, Long.parseLong(botAdminUserId));
 
         if (update.getMessage().hasSticker()) {
             Sticker sticker = update.getMessage().getSticker();

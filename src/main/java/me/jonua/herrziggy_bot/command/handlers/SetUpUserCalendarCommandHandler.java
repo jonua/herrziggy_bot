@@ -58,7 +58,7 @@ public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
                 })
                 .toList();
 
-        return buildInlineKeyboardMarkup(keyboards);
+        return buildInlineKeyboardMarkup(keyboards, 2);
     }
 
     @Override

@@ -33,7 +33,7 @@ public final class TelegramMessageUtils {
         return reduceMessageIfNeeds(parseMode, text, MAX_MESSAGE_LENGTH - 10);
     }
 
-    public static String reduceMessageIfNeeds(String parseMode, String text, int maxLength ) {
+    public static String reduceMessageIfNeeds(String parseMode, String text, int maxLength) {
         if (text.length() > maxLength) {
             return text.substring(0, maxLength) + tgEscape(parseMode, " ...");
         }
@@ -67,7 +67,10 @@ public final class TelegramMessageUtils {
         return result;
     }
 
-    public static InlineKeyboardMarkup buildInlineKeyboardMarkup(List<KeyboardButton> keyboardButtons) {
+    public static InlineKeyboardMarkup buildInlineKeyboardMarkup(List<KeyboardButton> keyboardButtons, int columnsCount) {
+        if (columnsCount < 1) {
+            columnsCount = 1;
+        }
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         for (KeyboardButton keyboardButton : keyboardButtons) {
@@ -76,7 +79,7 @@ public final class TelegramMessageUtils {
                     .text(keyboardButton.buttonName())
                     .build();
 
-            if (buttons.isEmpty() || buttons.getLast().size() % 2 == 0) {
+            if (buttons.isEmpty() || buttons.getLast().size() % columnsCount == 0) {
                 buttons.add(new ArrayList<>());
             }
 

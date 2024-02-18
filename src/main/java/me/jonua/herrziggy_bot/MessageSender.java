@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.*;
@@ -25,7 +26,7 @@ public class MessageSender {
     }
 
     public void send(String text, InlineKeyboardMarkup keyboardMarkup, String sendToId) throws TelegramApiException {
-        log.info("Sending keyboard merkup with text {} to {}", text, sendToId);
+        log.info("Sending keyboard markup with text {} to {}", text, sendToId);
 
         SendMessage tgMessage = new SendMessage(
                 sendToId,
@@ -187,5 +188,14 @@ public class MessageSender {
         } catch (TelegramApiException e) {
             log.error("Unable to delete message {} in chat {}: {}", messageId, chatId, e.getMessage(), e);
         }
+    }
+
+    public void sendAnswerCallback(String callbackQueryId, String text, Boolean showAlert) {
+        AnswerCallbackQuery answerCallbackQuery = AnswerCallbackQuery.builder()
+                .callbackQueryId(callbackQueryId)
+                .text(text)
+                .showAlert(showAlert)
+                .build();
+        sendSilently(answerCallbackQuery);
     }
 }

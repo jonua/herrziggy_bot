@@ -28,7 +28,7 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
     @Value("${messages.congratulation-on-march-8-message}")
     private String congratulationText;
     @Value("${bot.admin-telegram-id}")
-    private String adminTgId;
+    private Long adminTgId;
 
     @Override
     public boolean isSupport(UserFlowType userFlowType) {
@@ -49,9 +49,11 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
         }
 
         ZonedDateTime currentZdt = ZonedDateTime.now();
-        if (currentZdt.toLocalDate().getMonth().getValue() > Month.MARCH.getValue() &&
-                currentZdt.getDayOfMonth() > 8) {
-            throw new RuntimeException("The command can not be performed after the March 8");
+        if (currentZdt.toLocalDate().getMonth().getValue() != Month.MARCH.getValue() &&
+                currentZdt.getDayOfMonth() != 8) {
+            log.warn("The command can be performed on 8 march only");
+            messageSender.sendAnswerCallback(update.getCallbackQuery().getId(), "The command can be performed on 8 march only", true);
+            return;
         }
 
         List<TgSource> sources = storageService.findPrivateSources(Gender.FEMALE, Date.from(currentZdt.minusMonths(1).toInstant()));
@@ -60,7 +62,7 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
         for (TgSource source : sources) {
             log.info("Sending congratulation for {} {} ({}, {})",
                     source.getFirstName(), source.getLastName(), source.getUsername(), source.getSourceId());
-            messageSender.sendSilently(congratulationText, source.getSourceId(), null);
+//            messageSender.sendSilently(congratulationText, source.getSourceId(), null);
         }
     }
 }
