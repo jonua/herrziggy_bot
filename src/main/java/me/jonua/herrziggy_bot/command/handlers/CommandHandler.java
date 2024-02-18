@@ -11,5 +11,5 @@ public interface CommandHandler {
 
     void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload);
 
-    abstract boolean isSupport(BotCommand command);
+    boolean isSupport(BotCommand command);
 }

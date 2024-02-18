@@ -125,4 +125,14 @@ public class StorageService {
     public List<TgSource> findPrivateSources(Gender gender, Date updateDateLowerBoundary) {
         return tgSourceRepository.findPrivateSources(gender, updateDateLowerBoundary);
     }
+
+    @Transactional
+    public void markSourceAsKicked(Long sourceId) {
+        tgSourceRepository.markAsKicked(sourceId);
+    }
+
+    @Transactional
+    public void markSourceAsUnKicked(Long sourceId) {
+        tgSourceRepository.markAsUnKicked(sourceId);
+    }
 }

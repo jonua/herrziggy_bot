@@ -21,9 +21,9 @@ public class TgSource extends BaseEntity {
     private Boolean isBot = false;
     private Boolean isPremium = false;
     private String migrateFromChatId;
+    private boolean kicked = false;
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
     @ManyToOne
     private CalendarConfiguration calendarConfiguration;
 }

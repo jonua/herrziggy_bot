@@ -127,7 +127,7 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
 
     private void sendCalendarDataToUser(String tgUserId, SendMessage sendMessage, boolean respondWithNoDataMessage) {
         try {
-            if (!respondWithNoDataMessage) {
+            if (respondWithNoDataMessage) {
                 log.trace("Send calendar events to the telegram conversation: {}", tgUserId);
                 messageSender.send(sendMessage);
             } else {

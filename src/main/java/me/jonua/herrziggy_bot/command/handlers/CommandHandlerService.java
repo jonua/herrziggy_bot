@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -28,7 +29,7 @@ public class CommandHandlerService {
                     command, handler.getClass(), update.getMessage().getFrom().getId());
         }
 
-        handler.handleCommand(command, from, update);
+        handler.handleCommand(command, from, update, Map.of("respondWithNoDataMessage", true));
     }
 
     private BaseCommandHandler findHandler(BotCommand command) {

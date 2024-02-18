@@ -5,6 +5,8 @@ bot:
   name: HerrZiggyTESTbot
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
   admin-telegram-id: 154033750
+#  calendar:
+#    scheduling-cron: "*/3 * * * * *"
 google-cloud:
   calendar:
     api:

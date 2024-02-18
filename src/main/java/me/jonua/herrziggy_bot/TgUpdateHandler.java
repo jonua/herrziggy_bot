@@ -65,6 +65,23 @@ public class TgUpdateHandler {
             }
         } else {
             log.trace("Unhandled update: {}", update);
+            checkAndUpdateKickedStatus(update);
+        }
+    }
+
+    private void checkAndUpdateKickedStatus(Update update) {
+        ChatMemberUpdated myChatMember = update.getMyChatMember();
+        if (myChatMember != null && myChatMember.getFrom() != null) {
+            String oldStatus = myChatMember.getOldChatMember().getStatus();
+            String newStatus = myChatMember.getNewChatMember().getStatus();
+            Long sourceId = myChatMember.getFrom().getId();
+            if (oldStatus.equalsIgnoreCase("member") && newStatus.equalsIgnoreCase("kicked")) {
+                log.info("Member {} has been kicked (bot stopped for user)", sourceId);
+                storage.markSourceAsKicked(sourceId);
+            } else if (oldStatus.equalsIgnoreCase("kicked") && newStatus.equalsIgnoreCase("member")) {
+                log.info("Member {} has kicked but has been returned (bot restarted for user)", sourceId);
+                storage.markSourceAsUnKicked(sourceId);
+            }
         }
     }
 }
