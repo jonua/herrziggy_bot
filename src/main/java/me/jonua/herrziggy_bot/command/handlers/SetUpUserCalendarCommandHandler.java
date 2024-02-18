@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
+import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
 import me.jonua.herrziggy_bot.flow.MessageHandlerService;
 import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.service.StorageService;
@@ -12,16 +13,16 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.KeyboardButton;
+import static me.jonua.herrziggy_bot.utils.TelegramMessageUtils.buildInlineKeyboardMarkup;
 
 @Slf4j
 @Service
@@ -35,28 +36,9 @@ public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
 
     @Override
     public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
-        List<List<InlineKeyboardButton>> buttons = buildButtons();
-
-        InlineKeyboardMarkup keyboard = InlineKeyboardMarkup.builder()
-                .keyboard(buttons)
-                .build();
-
-        SendMessage tgMessage = new SendMessage(
-                String.valueOf(update.getMessage().getFrom().getId()),
-                null,
-                selectYourCalendarMessage,
-                null,
-                false,
-                false,
-                null,
-                keyboard,
-                null,
-                true,
-                false
-        );
-
+        InlineKeyboardMarkup keyboard = buildKeyboard();
         try {
-            messageSender.send(tgMessage);
+            messageSender.send(selectYourCalendarMessage, keyboard, update.getMessage().getFrom().getId());
         } catch (TelegramApiException e) {
             log.error("Unable to send request to reconfigure a calendar: {}", e.getMessage(), e);
             messageHandlerService.stopWaiting(update.getMessage().getFrom().getId());
@@ -64,32 +46,19 @@ public class SetUpUserCalendarCommandHandler extends BaseCommandHandler {
     }
 
     @NotNull
-    private List<List<InlineKeyboardButton>> buildButtons() {
+    private InlineKeyboardMarkup buildKeyboard() {
         Sort sorting = Sort.by(Sort.Order.asc("orderValue"));
         List<CalendarConfiguration> calendars = storageService.getCalendars(sorting);
 
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        for (CalendarConfiguration calendar : calendars) {
-            InlineKeyboardButton calendarButton = buildCalendarButton(calendar);
-            if (buttons.isEmpty() || buttons.getLast().size() % 2 == 0) {
-                buttons.add(new ArrayList<>());
-            }
+        List<KeyboardButton> keyboards = calendars.stream()
+                .map(calendar -> {
+                    String buttonName = calendar.getAdditionalInfo();
+                    String buttonCallbackData = UserFlowType.RECEIVE_NEW_CALENDAR_CONFIG.getCommandPrefix() + ":calendar:" + calendar.getUuid();
+                    return new KeyboardButton(buttonName, buttonCallbackData);
+                })
+                .toList();
 
-            buttons.getLast().add(calendarButton);
-        }
-
-        return buttons;
-    }
-
-    private InlineKeyboardButton buildCalendarButton(CalendarConfiguration calendar) {
-        return InlineKeyboardButton.builder()
-                .callbackData("cf:calendar:" + calendar.getUuid())
-                .text(buildCalendarName(calendar))
-                .build();
-    }
-
-    private String buildCalendarName(CalendarConfiguration calendar) {
-        return calendar.getAdditionalInfo();
+        return buildInlineKeyboardMarkup(keyboards);
     }
 
     @Override

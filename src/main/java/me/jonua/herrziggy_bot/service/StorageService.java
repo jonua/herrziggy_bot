@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.data.jpa.repository.CalendarRepository;
+import me.jonua.herrziggy_bot.enums.Gender;
 import me.jonua.herrziggy_bot.model.CalendarConfiguration;
 import me.jonua.herrziggy_bot.model.TgSource;
 import me.jonua.herrziggy_bot.model.TgSourceRepository;
@@ -118,5 +119,10 @@ public class StorageService {
     public void updateMigrateToChatId(String destinationChatId, String newSourceId) {
         log.info("Chat {} migrated to new id {}", destinationChatId, newSourceId);
         tgSourceRepository.updateMigrateToChatId(destinationChatId, newSourceId);
+    }
+
+    @Transactional
+    public List<TgSource> findPrivateSources(Gender gender, Date updateDateLowerBoundary) {
+        return tgSourceRepository.findPrivateSources(gender, updateDateLowerBoundary);
     }
 }

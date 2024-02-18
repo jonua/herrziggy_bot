@@ -4,6 +4,7 @@ bot:
   token: 6858655246:AAGGMTq3L6xSsFcYCdoh_sQFRqxCVoSBCZI
   name: HerrZiggyTESTbot
   max-allowed-entity-size-bytes: 10_000_000 # 10mb
+  admin-telegram-id: 154033750
 google-cloud:
   calendar:
     api:

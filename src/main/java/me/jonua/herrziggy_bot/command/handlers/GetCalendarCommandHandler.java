@@ -8,7 +8,6 @@ import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.command.BotCommandType;
 import me.jonua.herrziggy_bot.enums.calendar.CalendarPeriod;
 import me.jonua.herrziggy_bot.service.CalendarService;
-import me.jonua.herrziggy_bot.service.StorageService;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +34,6 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
     @Value("${messages.calendar-no-events-found-message}")
     private String noCalendarEventsFound;
     private final MessageSender messageSender;
-    private final StorageService storageService;
     private final CommandHandlerService commandHandlerService;
     private final CalendarService calendarService;
 

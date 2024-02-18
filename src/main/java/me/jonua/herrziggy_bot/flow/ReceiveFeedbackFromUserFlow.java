@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,11 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
+        perform(update, List.of());
+    }
+
+    @Override
+    public void perform(Update update, List<String> commandCallbackData) {
         Long fromId = update.getMessage().getFrom().getId();
         try {
             log.info("Feedback received from {}: {}", fromId, update.getMessage().getText());

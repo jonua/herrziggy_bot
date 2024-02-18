@@ -32,6 +32,11 @@ public class DefaultResponseUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
+        perform(update, List.of());
+    }
+
+    @Override
+    public void perform(Update update, List<String> commandCallbackData) {
         Optional.of(update).map(Update::getMessage).map(Message::getFrom)
                 .ifPresent(from -> {
                     forwardMessageToBotAdmin(update);

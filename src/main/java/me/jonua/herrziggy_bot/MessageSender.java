@@ -3,10 +3,13 @@ package me.jonua.herrziggy_bot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.utils.TelegramMessageUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.*;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
@@ -17,11 +20,40 @@ import java.util.Optional;
 public class MessageSender {
     private final HerrZiggyBot bot;
 
+    public void send(String text, InlineKeyboardMarkup keyboardMarkup, Long sendToId) throws TelegramApiException {
+        send(text, keyboardMarkup, String.valueOf(sendToId));
+    }
+
+    public void send(String text, InlineKeyboardMarkup keyboardMarkup, String sendToId) throws TelegramApiException {
+        log.info("Sending keyboard merkup with text {} to {}", text, sendToId);
+
+        SendMessage tgMessage = new SendMessage(
+                sendToId,
+                null,
+                text,
+                null,
+                false,
+                false,
+                null,
+                keyboardMarkup,
+                null,
+                true,
+                false
+        );
+
+        send(tgMessage);
+    }
+
     public void send(String text, Long sendToId) {
         send(text, String.valueOf(sendToId), null);
     }
 
     public void send(String text, String sendToId, String parseMode) {
+        if (StringUtils.isEmpty(text)) {
+            log.warn("Text can't be empty");
+            return;
+        }
+
         try {
             String preparedText = text;
             if (ParseMode.MARKDOWNV2.equalsIgnoreCase(parseMode)) {
@@ -143,5 +175,17 @@ public class MessageSender {
     public void send(SendMediaGroup group) throws TelegramApiException {
         log.info("Sending media group to {} ...", group.getChatId());
         bot.execute(group);
+    }
+
+    public void deleteMessage(Long chatId, Integer messageId) {
+        DeleteMessage deleteMessage = DeleteMessage.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .build();
+        try {
+            bot.execute(deleteMessage);
+        } catch (TelegramApiException e) {
+            log.error("Unable to delete message {} in chat {}: {}", messageId, chatId, e.getMessage(), e);
+        }
     }
 }

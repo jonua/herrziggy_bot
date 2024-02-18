@@ -7,6 +7,7 @@ import me.jonua.herrziggy_bot.command.handlers.CommandHandlerService;
 import me.jonua.herrziggy_bot.flow.MessageHandlerService;
 import me.jonua.herrziggy_bot.flow.UserFlowService;
 import me.jonua.herrziggy_bot.service.StorageService;
+import me.jonua.herrziggy_bot.service.admin.AdminCommandService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.*;
@@ -23,6 +24,7 @@ public class TgUpdateHandler {
     private final StorageService storage;
     private final CommandHandlerService commandHandlerService;
     private final UserFlowService userFlowService;
+    private final AdminCommandService adminCommandService;
 
     List<Function<Update, Optional<User>>> userExtractor = List.of(
             update -> Optional.of(update).map(Update::getMessage).map(Message::getFrom),
@@ -52,11 +54,13 @@ public class TgUpdateHandler {
                         commandHandlerService.handleCommand(command, update.getMessage().getFrom(), update);
                     }
                 }
+            } else if (adminCommandService.isAdminCommand(message)) {
+                adminCommandService.handle(message, message.getFrom().getId());
             } else if (message.isUserMessage()) {
                 messageHandler.handleMessage(update.getMessage().getFrom(), update);
             }
         } else if (update.hasCallbackQuery()) {
-            if (!userFlowService.callFlow(update)) {
+            if (!userFlowService.performIsFlow(update)) {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }
         } else {

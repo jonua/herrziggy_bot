@@ -3,7 +3,10 @@ package me.jonua.herrziggy_bot.utils;
 import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class TelegramMessageUtils {
@@ -62,5 +65,29 @@ public final class TelegramMessageUtils {
         result += " [" + from.getId() + "]";
 
         return result;
+    }
+
+    public static InlineKeyboardMarkup buildInlineKeyboardMarkup(List<KeyboardButton> keyboardButtons) {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        for (KeyboardButton keyboardButton : keyboardButtons) {
+            InlineKeyboardButton button = InlineKeyboardButton.builder()
+                    .callbackData(keyboardButton.buttonCallbackData())
+                    .text(keyboardButton.buttonName())
+                    .build();
+
+            if (buttons.isEmpty() || buttons.getLast().size() % 2 == 0) {
+                buttons.add(new ArrayList<>());
+            }
+
+            buttons.getLast().add(button);
+        }
+
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .build();
+    }
+
+    public record KeyboardButton(String buttonName, String buttonCallbackData) {
     }
 }
