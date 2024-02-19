@@ -101,6 +101,7 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
     }
 
     private void respondWithCalendarData(String calendarName, String tgUserId, BotCommand command, List<CalendarEventItemDto> items, boolean respondWithNoDataMessage) {
+
         List<String> eventList = new ArrayList<>();
 
         for (CalendarEventItemDto item : items) {
@@ -122,17 +123,15 @@ public class GetCalendarCommandHandler extends BaseCommandHandler {
             sendMessage = buildCalendarData(calendarName, tgUserId, command, eventList);
         }
 
-        sendCalendarDataToUser(tgUserId, sendMessage, respondWithNoDataMessage);
+        if (!eventList.isEmpty() || respondWithNoDataMessage) {
+            sendCalendarDataToUser(tgUserId, sendMessage);
+        }
     }
 
-    private void sendCalendarDataToUser(String tgUserId, SendMessage sendMessage, boolean respondWithNoDataMessage) {
+    private void sendCalendarDataToUser(String tgUserId, SendMessage sendMessage) {
         try {
-            if (respondWithNoDataMessage) {
-                log.trace("Send calendar events to the telegram conversation: {}", tgUserId);
-                messageSender.send(sendMessage);
-            } else {
-                log.warn("No calendar events found and users will not be notified");
-            }
+            log.trace("Send calendar events to the telegram conversation: {}", tgUserId);
+            messageSender.send(sendMessage);
         } catch (TelegramApiException e) {
             log.error("Unable to sent calendar events to the telegram conversation:{}: {}", tgUserId, e.getMessage(), e);
             throw new RuntimeException(e);
