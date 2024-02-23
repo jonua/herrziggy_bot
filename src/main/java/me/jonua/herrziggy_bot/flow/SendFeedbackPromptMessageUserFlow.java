@@ -25,7 +25,7 @@ public class SendFeedbackPromptMessageUserFlow implements UserFlow {
     @Override
     public void perform(Update update, List<String> commandCallbackData) {
         feedbackHandler.waitUserFlow(update.getMessage().getFrom(), UserFlowType.RECEIVE_FEEDBACK);
-        messageSender.sendSilently(String.valueOf(update.getMessage().getFrom().getId()), giveFeedbackMessage, null);
+        messageSender.sendSilently(giveFeedbackMessage, String.valueOf(update.getMessage().getFrom().getId()), null);
     }
 
     @Override

@@ -35,11 +35,11 @@ public class ReceiveFeedbackFromUserFlow implements UserFlow {
         Long fromId = update.getMessage().getFrom().getId();
         try {
             log.info("Feedback received from {}: {}", fromId, update.getMessage().getText());
-            messageSender.sendSilently(String.valueOf(fromId), thanksForFeedbackMessage, ParseMode.MARKDOWNV2);
+            messageSender.sendSilently(thanksForFeedbackMessage, String.valueOf(fromId), ParseMode.MARKDOWNV2);
 
             String newFeedbackMessage = String.format("#feedback\nNew feedback received from %s: %s",
                     TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()), update.getMessage().getText());
-            messageSender.sendSilently(sendFeedbackTo, newFeedbackMessage, null);
+            messageSender.sendSilently(newFeedbackMessage, sendFeedbackTo, null);
         } finally {
             messageHandler.stopWaiting(fromId);
         }
