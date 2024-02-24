@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -26,12 +27,12 @@ public class SetUpUserCalendarFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
-        String newCalendarUuid = commandCallbackData.get(1);
+    public void perform(Update update, Map<String, Object> params) {
+        String newCalendarUuid = ((List<String>)params.get(UserFlow.PARAM_CALLBACK_DATA)).get(2);
         storageService.findCalendarByUuid(newCalendarUuid)
                 .ifPresentOrElse(calendar -> reassignCalendar(update, calendar), () -> {
                     log.error("No calendars found by uuid {}", newCalendarUuid);

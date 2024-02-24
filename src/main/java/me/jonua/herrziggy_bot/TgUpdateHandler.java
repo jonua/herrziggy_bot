@@ -60,7 +60,7 @@ public class TgUpdateHandler {
                 messageHandler.handleMessage(update.getMessage().getFrom(), update);
             }
         } else if (update.hasCallbackQuery()) {
-            if (!userFlowService.performIsFlow(update)) {
+            if (!userFlowService.performAsFlow(update)) {
                 messageHandler.handleMessage(update.getCallbackQuery().getFrom(), update);
             }
         } else {

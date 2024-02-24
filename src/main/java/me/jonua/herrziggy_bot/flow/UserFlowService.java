@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -20,10 +21,10 @@ public class UserFlowService {
     private final EmptyFlow emptyFlow;
 
     public void perform(UserFlowType userFlowType, User from, Update update) {
-        perform(userFlowType, from, update, List.of());
+        perform(userFlowType, from, update, Map.of());
     }
 
-    public void perform(UserFlowType userFlowType, User from, Update update, List<String> commandCallbackData) {
+    public void perform(UserFlowType userFlowType, User from, Update update, Map<String, Object> params) {
         UserFlow flow = findFlow(userFlowType);
         if (log.isTraceEnabled()) {
             log.trace("Flow:{} will be performed by:{} for sender:{}. Message {}",
@@ -33,10 +34,10 @@ public class UserFlowService {
                     userFlowType, flow.getClass(), from.getId());
         }
 
-        flow.perform(update, commandCallbackData);
+        flow.perform(update, params);
     }
 
-    public boolean performIsFlow(Update update) {
+    public boolean performAsFlow(Update update) {
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
 
@@ -46,7 +47,7 @@ public class UserFlowService {
                         flowCommand.map(Pair::getFirst).get(),
                         update.getCallbackQuery().getFrom(),
                         update,
-                        flowCommand.map(Pair::getSecond).get()
+                        Map.of(UserFlow.PARAM_CALLBACK_DATA, flowCommand.map(Pair::getSecond).get())
                 );
                 return true;
             }

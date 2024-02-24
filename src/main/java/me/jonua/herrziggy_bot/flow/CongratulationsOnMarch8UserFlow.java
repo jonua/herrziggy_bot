@@ -17,6 +17,7 @@ import java.time.Month;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -37,11 +38,11 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
+    public void perform(Update update, Map<String, Object> params) {
         Message message = update.getCallbackQuery().getMessage();
         if (!adminCommandService.isBotAdmin(message.getChat().getId())) {
             log.error("This user command can be handled for admin only");

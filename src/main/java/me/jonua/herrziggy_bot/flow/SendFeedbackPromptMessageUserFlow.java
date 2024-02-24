@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +19,12 @@ public class SendFeedbackPromptMessageUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
-        feedbackHandler.waitUserFlow(update.getMessage().getFrom(), UserFlowType.RECEIVE_FEEDBACK);
+    public void perform(Update update, Map<String, Object> params) {
+        feedbackHandler.waitUserFlow(update.getMessage().getFrom().getId(), UserFlowType.RECEIVE_FEEDBACK);
         messageSender.sendSilently(giveFeedbackMessage, String.valueOf(update.getMessage().getFrom().getId()), null);
     }
 

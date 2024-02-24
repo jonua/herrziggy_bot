@@ -1,6 +1,7 @@
 package me.jonua.herrziggy_bot.flow;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.jonua.herrziggy_bot.MessageSender;
 import me.jonua.herrziggy_bot.command.BotCommand;
 import me.jonua.herrziggy_bot.enums.flow.UserFlowType;
@@ -12,13 +13,13 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultResponseUserFlow implements UserFlow {
@@ -32,11 +33,11 @@ public class DefaultResponseUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
+    public void perform(Update update, Map<String, Object> params) {
         Optional.of(update).map(Update::getMessage).map(Message::getFrom)
                 .ifPresent(from -> {
                     forwardMessageToBotAdmin(update);
@@ -55,18 +56,33 @@ public class DefaultResponseUserFlow implements UserFlow {
     }
 
     private void forwardMessageToBotAdmin(Update update) {
-        String userInput = update.getMessage().getText();
-        if (update.getMessage().hasSticker()) {
+        Message message = update.getMessage();
+        String userInput = message.getText();
+        if (message.hasSticker()) {
             userInput = "<sticker>";
         }
 
-        String messageFullText = "#user_direct_message\nNew message from " + TelegramMessageUtils.extractUserInfo(update.getMessage().getFrom()) + ": " + userInput;
-        messageSender.sendSilently(messageFullText, Long.parseLong(botAdminUserId));
+        String userInfo = TelegramMessageUtils.extractUserInfo(message.getFrom());
+        String messageFullText = "#user_direct_message\nNew message from " + userInfo + ": " + userInput;
+        InlineKeyboardMarkup keyboardMarkup = TelegramMessageUtils.buildInlineKeyboardMarkup(
+                List.of(
+                        new TelegramMessageUtils.KeyboardButton("Respond to " + userInfo,
+                                UserFlowType.DIRECT_MESSAGE_FROM_ADMIN_TO_USER_FLOW.getCommandPrefix() + ":" + message.getFrom().getId()
+                        )
+                ),
+                1
+        );
+        try {
+            messageSender.send(messageFullText, keyboardMarkup, Long.parseLong(botAdminUserId));
+        } catch (TelegramApiException e) {
+            log.error("Unable to send message with markup to admin: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
 
-        if (update.getMessage().hasSticker()) {
-            Sticker sticker = update.getMessage().getSticker();
+        if (message.hasSticker()) {
+            Sticker sticker = message.getSticker();
             SendSticker sendSticker = new SendSticker(
-                    String.valueOf(update.getMessage().getFrom().getId()),
+                    String.valueOf(message.getFrom().getId()),
                     new InputFile(sticker.getFileId())
             );
             messageSender.sendSilently(sendSticker);

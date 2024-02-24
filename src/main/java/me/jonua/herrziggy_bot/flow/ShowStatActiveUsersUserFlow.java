@@ -22,7 +22,7 @@ public class ShowStatActiveUsersUserFlow extends BaseStatUsersUserFlow {
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
+    public void perform(Update update, Map<String, Object> params) {
         Map<Date, List<TgSourceProjection>> stat = storageService.getStatActiveUsers();
         respondWithStat(update.getCallbackQuery().getId(), stat);
     }

@@ -14,7 +14,7 @@ public enum BotCommand {
     FULL_SEMESTER_TESTS(BotCommandType.CALENDAR, "semester_tests", "\uD83D\uDCC6 Зачеты на весь семестр", true),
     SETUP_USER_CALENDAR(BotCommandType.CALENDAR_SETTINGS, "setup_calendar", "\uD83E\uDD13 Поменять календарь", true),
     FEEDBACK(BotCommandType.FEEDBACK, "feedback", "Напиши мне \uD83E\uDD19", true),
-    CANCEL_FEEDBACK(BotCommandType.CANCEL_FEEDBACK, "cancel_feedback", "\uD83C\uDF1A Отменить", false),
+    CANCEL(BotCommandType.CANCEL, "cancel", "\uD83C\uDF1A Отменить", false),
     START_BOT(BotCommandType.START_BOT, "start", "Star ", false);
 
     private final BotCommandType commandType;

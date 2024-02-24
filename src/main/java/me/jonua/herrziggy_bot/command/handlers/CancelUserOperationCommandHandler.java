@@ -14,16 +14,16 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CancelFeedbackCommandHandler extends BaseCommandHandler {
+public class CancelUserOperationCommandHandler extends BaseCommandHandler {
     private final MessageHandlerService messageHandler;
 
     public void handleCommand(BotCommand command, User from, Update update, Map<String, Object> payload) {
-        log.trace("User {} cancelled feedback", update.getMessage().getFrom());
+        log.trace("User {} cancelled an operation", update.getMessage().getFrom());
         messageHandler.stopWaiting(update.getMessage().getFrom().getId());
     }
 
     @Override
     public boolean isSupport(BotCommand command) {
-        return BotCommandType.CANCEL_FEEDBACK.equals(command.getCommandType());
+        return BotCommandType.CANCEL.equals(command.getCommandType());
     }
 }

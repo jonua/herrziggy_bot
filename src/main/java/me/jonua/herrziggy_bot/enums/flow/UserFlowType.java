@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,9 @@ public enum UserFlowType {
     RECEIVE_NEW_CALENDAR_CONFIG("cf"),
     CONGRATULATION_ON_8_MARCH("8march"),
     SHOW_STAT_NEW_USERS("statNew"),
-    SHOW_STAT_ACTIVE_USERS("statActive");
+    SHOW_STAT_ACTIVE_USERS("statActive"),
+    DIRECT_MESSAGE_FROM_ADMIN_TO_USER_FLOW("dm"),
+    ;
 
     private final static String NONE = "-none-";
 
@@ -33,7 +34,7 @@ public enum UserFlowType {
         String[] parts = rawData.split(":");
         for (UserFlowType type : UserFlowType.values()) {
             if (type.getCommandPrefix().equalsIgnoreCase(parts[0])) {
-                return Optional.of(Pair.of(type, Arrays.stream(Arrays.copyOfRange(parts, 1, parts.length)).toList()));
+                return Optional.of(Pair.of(type, List.of(parts)));
             }
         }
 

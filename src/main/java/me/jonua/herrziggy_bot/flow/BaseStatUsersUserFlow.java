@@ -26,7 +26,7 @@ public abstract class BaseStatUsersUserFlow implements UserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     public void respondWithStat(String callbackQueryId, Map<Date, List<TgSourceProjection>> stat) {

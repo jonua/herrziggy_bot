@@ -4,7 +4,7 @@ public enum BotCommandType {
     CALENDAR,
     CALENDAR_SETTINGS,
     FEEDBACK,
-    CANCEL_FEEDBACK,
+    CANCEL,
     SERVICE,
     START_BOT,
     ;

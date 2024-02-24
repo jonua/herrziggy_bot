@@ -7,6 +7,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 import me.jonua.herrziggy_bot.enums.Gender;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 @Setter
@@ -26,4 +27,18 @@ public class TgSource extends BaseEntity {
     private Gender gender;
     @ManyToOne
     private CalendarConfiguration calendarConfiguration;
+
+    public String getBeautifiedName() {
+        String result = "";
+        if (StringUtils.isNotEmpty(firstName)) {
+            result += firstName;
+        }
+        if (StringUtils.isNotEmpty(lastName)) {
+            result += " " + lastName;
+        }
+        if (StringUtils.isNotEmpty(username)) {
+            result += " (@" + username + ")";
+        }
+        return result;
+    }
 }

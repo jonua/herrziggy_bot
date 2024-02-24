@@ -30,11 +30,11 @@ public class ShowStatNewUsersUserFlow extends BaseStatUsersUserFlow {
 
     @Override
     public void perform(Update update) {
-        perform(update, List.of());
+        perform(update, Map.of());
     }
 
     @Override
-    public void perform(Update update, List<String> commandCallbackData) {
+    public void perform(Update update, Map<String, Object> params) {
         Map<Date, List<TgSourceProjection>> stat = storageService.getStatNewUsers();
         respondWithStat(update.getCallbackQuery().getId(), stat);
     }
