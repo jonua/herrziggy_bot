@@ -18,6 +18,10 @@ public class TgSourceProjection {
 
     public String beautify() {
         String result = "";
+        if (StringUtils.isNotEmpty(type)) {
+            result += "[" + type + "] ";
+        }
+
         if (StringUtils.isNotEmpty(firstName)) {
             result += firstName;
         }
@@ -29,9 +33,6 @@ public class TgSourceProjection {
         }
         if (StringUtils.isNotEmpty(title)) {
             result += " (" + title + ")";
-        }
-        if (StringUtils.isNotEmpty(type)) {
-            result += ", " + type;
         }
         return result;
     }
