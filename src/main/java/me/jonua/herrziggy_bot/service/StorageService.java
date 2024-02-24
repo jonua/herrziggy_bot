@@ -146,7 +146,7 @@ public class StorageService {
 
     @Transactional
     public Map<Date, List<TgSourceProjection>> getStatActiveUsers() {
-        List<TgSourceProjection> stat = tgSourceRepository.getStatActiveUsers(Date.from(ZonedDateTime.now().minusDays(7).toInstant()));
+        List<TgSourceProjection> stat = tgSourceRepository.getStatActiveUsers(Date.from(ZonedDateTime.now().minusDays(3).toInstant()));
         return groupByDateAndSort(stat);
     }
 
