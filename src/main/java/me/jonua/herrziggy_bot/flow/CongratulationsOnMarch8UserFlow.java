@@ -64,7 +64,7 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
                     source.getFirstName(), source.getLastName(), source.getUsername(), source.getSourceId());
             String textToSend = congratulationText.replace("{name}", source.getFirstName());
             try {
-            messageSender.sendSilently(textToSend, source.getSourceId(), null);
+                messageSender.sendSilently(textToSend, source.getSourceId(), null);
             } catch (Exception e) {
                 log.error("unable to send message: {}", e.getMessage(), e);
             }
