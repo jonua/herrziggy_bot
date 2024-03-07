@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.Month;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -57,13 +56,18 @@ public class CongratulationsOnMarch8UserFlow implements UserFlow {
             return;
         }
 
-        List<TgSource> sources = storageService.findPrivateSources(Gender.FEMALE, Date.from(currentZdt.minusMonths(1).toInstant()));
+        List<TgSource> sources = storageService.findPrivateSources(Gender.FEMALE);
         log.info("Found {} sources", sources.size());
         messageSender.deleteMessage(message.getChatId(), message.getMessageId());
         for (TgSource source : sources) {
             log.info("Sending congratulation for {} {} ({}, {})",
                     source.getFirstName(), source.getLastName(), source.getUsername(), source.getSourceId());
-            messageSender.sendSilently(congratulationText, source.getSourceId(), null);
+            String textToSend = congratulationText.replace("{name}", source.getFirstName());
+            try {
+            messageSender.sendSilently(textToSend, source.getSourceId(), null);
+            } catch (Exception e) {
+                log.error("unable to send message: {}", e.getMessage(), e);
+            }
         }
     }
 }

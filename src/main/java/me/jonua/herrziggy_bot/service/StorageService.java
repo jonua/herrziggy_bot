@@ -124,8 +124,8 @@ public class StorageService {
     }
 
     @Transactional
-    public List<TgSource> findPrivateSources(Gender gender, Date updateDateLowerBoundary) {
-        return tgSourceRepository.findPrivateSources(gender, updateDateLowerBoundary);
+    public List<TgSource> findPrivateSources(Gender gender) {
+        return tgSourceRepository.findPrivateSources(gender);
     }
 
     @Transactional
